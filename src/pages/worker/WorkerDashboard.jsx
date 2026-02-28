@@ -10,7 +10,7 @@ import { SkeletonRow } from '../../components/ui/SkeletonLoader';
 import EmptyState from '../../components/ui/EmptyState';
 import toast from 'react-hot-toast';
 
-const STATUS_BADGE = { Pending: 'badge-amber', 'In Progress': 'badge-blue', Resolved: 'badge-green' };
+const STATUS_BADGE = { Pending: 'badge-amber', 'In Progress': 'badge-amber', Resolved: 'badge-green' };
 const PRIORITY_BADGE = { High: 'badge-red', Medium: 'badge-amber', Low: 'badge-green' };
 
 function ResolveModal({ complaint, onClose }) {
@@ -107,10 +107,10 @@ export default function WorkerDashboard() {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Assigned', value: complaints.length, icon: '📋', color: 'from-civic-blue to-blue-600' },
-          { label: 'Pending', value: pending, icon: '⏳', color: 'from-alert-amber to-orange-500' },
-          { label: 'Resolved', value: resolved, icon: '✅', color: 'from-civic-green to-emerald-500' },
-          { label: 'My Points', value: userProfile?.points || 0, icon: '⭐', color: 'from-amber-400 to-orange-500' },
+          { label: 'Assigned', value: complaints.length, icon: '📋', color: 'from-green-600 to-green-500' },
+          { label: 'Pending', value: pending, icon: '⏳', color: 'from-lime-400 to-green-600' },
+          { label: 'Resolved', value: resolved, icon: '✅', color: 'from-civic-green to-lime-500' },
+          { label: 'My Points', value: userProfile?.points || 0, icon: '⭐', color: 'from-lime-400 to-civic-green' },
         ].map(({ label, value, icon, color }) => (
           <div key={label} className="glass-card p-4 text-center">
             <div className="text-2xl mb-2">{icon}</div>
@@ -123,18 +123,18 @@ export default function WorkerDashboard() {
       <div className="glass-card p-4 mb-6">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Resolution Rate</span>
-          <span className={`text-sm font-bold ${rate >= 80 ? 'text-civic-green' : rate >= 50 ? 'text-alert-amber' : 'text-alert-red'}`}>{rate}%</span>
+          <span className={`text-sm font-bold ${rate >= 80 ? 'text-lime-400' : rate >= 50 ? 'text-green-400' : 'text-alert-red'}`}>{rate}%</span>
         </div>
-        <div className="h-2.5 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
+        <div className="h-1.5 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${rate}%` }}
             transition={{ duration: 1 }}
-            className={`h-full rounded-full ${rate >= 80 ? 'bg-civic-green' : rate >= 50 ? 'bg-alert-amber' : 'bg-alert-red'}`}
+            className={`h-full rounded-full ${rate >= 80 ? 'bg-lime-400' : rate >= 50 ? 'bg-green-400' : 'bg-alert-red'}`}
           />
         </div>
         <div className="flex items-center gap-1.5 mt-2">
-          <Star className="w-3.5 h-3.5 text-amber-400" />
+          <Star className="w-3.5 h-3.5 text-lime-400" />
           <span className="text-xs text-gray-400">{userProfile?.points || 0} total points earned</span>
         </div>
       </div>
@@ -142,7 +142,7 @@ export default function WorkerDashboard() {
       <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
         {['All', 'Pending', 'In Progress', 'Resolved'].map((f) => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${filter === f ? 'bg-civic-blue dark:bg-civic-green text-white' : 'glass-card text-gray-600 dark:text-gray-400'}`}>
+            className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${filter === f ? 'bg-civic-green text-white shadow-glow' : 'glass-card text-gray-600 dark:text-gray-400'}`}>
             {f}
           </button>
         ))}
@@ -163,16 +163,16 @@ export default function WorkerDashboard() {
             <motion.div key={c.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
               className="glass-card p-4">
               <div className="flex items-start gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                  c.priority === 'High' ? 'bg-alert-red/10' : c.priority === 'Medium' ? 'bg-alert-amber/10' : 'bg-civic-green/10'
-                }`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${c.priority === 'High' ? 'bg-alert-red/10' : c.priority === 'Medium' ? 'bg-amber-500/10' : 'bg-green-500/10'
+                  }`}>
                   {c.status === 'Resolved' ? <CheckCircle2 className={`w-5 h-5 text-civic-green`} /> :
-                   <AlertCircle className={`w-5 h-5 ${c.priority === 'High' ? 'text-alert-red' : c.priority === 'Medium' ? 'text-alert-amber' : 'text-civic-green'}`} />}
+                    c.priority === 'High' ? <AlertCircle className="w-5 h-5 text-alert-red" /> :
+                      c.priority === 'Medium' ? <AlertCircle className="w-5 h-5 text-amber-500" /> : <AlertCircle className="w-5 h-5 text-green-500" />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className={STATUS_BADGE[c.status] || 'badge-amber'}>{c.status}</span>
-                    <span className={PRIORITY_BADGE[c.priority] || 'badge-amber'}>{c.priority}</span>
+                    <span className={STATUS_BADGE[c.status] || 'badge-blue'}>{c.status}</span>
+                    <span className={PRIORITY_BADGE[c.priority] || 'badge-blue'}>{c.priority}</span>
                   </div>
                   <p className="text-sm font-semibold text-gray-800 dark:text-white">{c.type}</p>
                   <div className="flex items-center gap-3 text-xs text-gray-400 mt-1">

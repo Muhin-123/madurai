@@ -13,7 +13,7 @@ import { SkeletonRow } from '../../components/ui/SkeletonLoader';
 import EmptyState from '../../components/ui/EmptyState';
 import toast from 'react-hot-toast';
 
-const STATUS_BADGE = { Pending: 'badge-amber', 'In Progress': 'badge-blue', Resolved: 'badge-green' };
+const STATUS_BADGE = { Pending: 'badge-amber', 'In Progress': 'badge-amber', Resolved: 'badge-green' };
 const COMPLAINT_TYPES = ['Garbage Overflow', 'Open Drain', 'Dead Animal', 'Street Cleaning', 'Blocked Drain', 'Illegal Dumping', 'Toilet Issue', 'Other'];
 
 function ComplaintModal({ onClose }) {
@@ -69,7 +69,7 @@ function ComplaintModal({ onClose }) {
         {step < 4 && (
           <div className="flex gap-1 mb-5">
             {[1, 2, 3].map((s) => (
-              <div key={s} className={`flex-1 h-1.5 rounded-full transition-all ${step >= s ? 'bg-gradient-to-r from-civic-blue to-civic-green' : 'bg-gray-200 dark:bg-white/10'}`} />
+              <div key={s} className={`flex-1 h-1.5 rounded-full transition-all ${step >= s ? 'bg-gradient-to-r from-civic-green to-civic-green' : 'bg-gray-200 dark:bg-white/10'}`} />
             ))}
           </div>
         )}
@@ -80,7 +80,7 @@ function ComplaintModal({ onClose }) {
             <div className="grid grid-cols-2 gap-2">
               {COMPLAINT_TYPES.map((t) => (
                 <button key={t} onClick={() => setForm((f) => ({ ...f, type: t }))}
-                  className={`p-3 rounded-xl text-sm border text-left transition-all ${form.type === t ? 'border-civic-blue bg-civic-blue/10 text-civic-blue dark:border-civic-green dark:bg-civic-green/10 dark:text-civic-green' : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400'}`}>
+                  className={`p-3 rounded-xl text-sm border text-left transition-all ${form.type === t ? 'border-civic-green bg-civic-green/10 text-civic-green dark:border-civic-green dark:bg-civic-green/10 dark:text-civic-green' : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400'}`}>
                   {t}
                 </button>
               ))}
@@ -125,7 +125,7 @@ function ComplaintModal({ onClose }) {
                 </div>
               ))}
             </div>
-            <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-xl text-xs text-amber-700 dark:text-amber-400 font-medium">
+            <div className="p-3 bg-green-50 shadow-sm dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-xl text-xs text-green-700 dark:text-green-400 font-medium">
               ⭐ You'll earn +5 points for filing this complaint!
             </div>
             <div className="flex gap-2">
@@ -148,7 +148,7 @@ function ComplaintModal({ onClose }) {
             <p className="text-sm text-gray-400 mb-4">+5 points added to your account</p>
             <div className="glass-card p-4 mb-5 inline-block">
               <p className="text-xs text-gray-400 mb-1">Tracking ID</p>
-              <p className="text-2xl font-mono font-bold text-civic-blue dark:text-civic-green">{trackId}</p>
+              <p className="text-2xl font-mono font-bold text-civic-green dark:text-civic-green">{trackId}</p>
             </div>
             <button onClick={onClose} className="btn-primary block w-full">Close</button>
           </div>
@@ -181,7 +181,7 @@ export default function CitizenComplaints() {
       <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
         {['All', 'Pending', 'In Progress', 'Resolved'].map((f) => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${filter === f ? 'bg-civic-blue dark:bg-civic-green text-white' : 'glass-card text-gray-600 dark:text-gray-400'}`}>
+            className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${filter === f ? 'bg-civic-green dark:bg-civic-green text-white' : 'glass-card text-gray-600 dark:text-gray-400'}`}>
             {f}
           </button>
         ))}
@@ -204,12 +204,11 @@ export default function CitizenComplaints() {
             <motion.div key={c.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
               className="glass-card p-4">
               <div className="flex items-start gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                  c.status === 'Resolved' ? 'bg-civic-green/10' : c.status === 'In Progress' ? 'bg-civic-blue/10' : 'bg-alert-amber/10'
-                }`}>
-                  {c.status === 'Resolved' ? <CheckCircle2 className="w-5 h-5 text-civic-green" /> :
-                   c.status === 'In Progress' ? <Clock className="w-5 h-5 text-civic-blue dark:text-civic-green" /> :
-                   <AlertCircle className="w-5 h-5 text-alert-amber" />}
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${c.status === 'Resolved' ? 'bg-green-500/10' : c.status === 'In Progress' ? 'bg-amber-500/10' : 'bg-amber-500/10'
+                  }`}>
+                  {c.status === 'Resolved' ? <CheckCircle2 className="w-5 h-5 text-green-500" /> :
+                    c.status === 'In Progress' ? <Clock className="w-5 h-5 text-amber-500" /> :
+                      <AlertCircle className="w-5 h-5 text-amber-500" />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">

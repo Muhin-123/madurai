@@ -64,12 +64,12 @@ export default function OfficerDashboard() {
   const { workers } = useWorkers();
 
   const statCards = [
-    { label: 'Complaints Today', value: stats.complaintsToday, icon: '📋', gradient: 'from-civic-blue to-blue-600', sub: 'Filed today' },
-    { label: 'Pending', value: stats.pendingComplaints, icon: '⏳', gradient: 'from-alert-amber to-orange-500', sub: 'Needs action' },
-    { label: 'Resolved Today', value: stats.resolvedToday, icon: '✅', gradient: 'from-civic-green to-emerald-500', sub: 'Completed' },
+    { label: 'Complaints Today', value: stats.complaintsToday, icon: '📋', gradient: 'from-green-600 to-green-500', sub: 'Filed today' },
+    { label: 'Pending', value: stats.pendingComplaints, icon: '⏳', gradient: 'from-lime-600 to-lime-500', sub: 'Needs action' },
+    { label: 'Resolved Today', value: stats.resolvedToday, icon: '✅', gradient: 'from-civic-green to-lime-400', sub: 'Completed' },
     { label: 'Critical Bins', value: stats.criticalBins, icon: '🗑️', gradient: 'from-alert-red to-red-600', sub: 'Fill > 80%' },
-    { label: 'Toilet Issues', value: stats.toiletComplaints, icon: '🚻', gradient: 'from-alert-purple to-purple-600', sub: 'Today' },
-    { label: 'Bio-Waste (kg)', value: stats.bioWasteTraded, icon: '🌿', gradient: 'from-civic-green to-teal-500', sub: 'Total traded' },
+    { label: 'Toilet Issues', value: stats.toiletComplaints, icon: '🚻', gradient: 'from-green-700 to-green-500', sub: 'Today' },
+    { label: 'Bio-Waste (kg)', value: stats.bioWasteTraded, icon: '🌿', gradient: 'from-civic-green to-lime-500', sub: 'Total traded' },
   ];
 
   return (
@@ -142,9 +142,8 @@ export default function OfficerDashboard() {
                     <p className="text-sm font-semibold text-gray-800 dark:text-white">{c.type}</p>
                     <p className="text-xs text-gray-400">{c.ward_id || '—'}</p>
                   </div>
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                    c.status === 'Resolved' ? 'badge-green' : c.status === 'In Progress' ? 'badge-blue' : 'badge-amber'
-                  }`}>{c.status}</span>
+                  <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${c.status === 'Resolved' ? 'badge-green' : c.status === 'In Progress' ? 'badge-amber' : 'badge-amber'
+                    }`}>{c.status}</span>
                 </div>
               ))}
             </div>
@@ -154,24 +153,26 @@ export default function OfficerDashboard() {
         <div className="glass-card p-5">
           <h3 className="section-title mb-4">Top Ward Rankings</h3>
           {wards.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-8">No ward data yet</p>
+            <p className="text-sm font-medium text-gray-400 text-center py-8">No ward data yet</p>
           ) : (
             <div className="space-y-2">
-              {wards.slice(0, 5).map((ward, i) => (
-                <div key={ward.id} className="flex items-center gap-3 p-3 bg-white/30 dark:bg-white/5 rounded-xl">
-                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black ${
-                    i === 0 ? 'bg-yellow-400 text-yellow-900' : i === 1 ? 'bg-gray-300 text-gray-700' : i === 2 ? 'bg-amber-600 text-white' : 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400'
-                  }`}>{i + 1}</div>
+              {wards.slice(0, 5).map((ward, index) => (
+                <div key={ward.id} className={`flex items-center gap-3 p-3 rounded-xl transition-all ${index === 0 ? 'bg-lime-500/20 shadow-glow' :
+                  index === 1 ? 'bg-green-500/10' :
+                    index === 2 ? 'bg-green-500/5' : 'hover:bg-white/5'
+                  }`}>
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-black ${index === 0 ? 'bg-lime-400 text-white' : index === 1 ? 'bg-green-300 text-green-800' : index === 2 ? 'bg-emerald-500 text-white' : 'bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400'
+                    }`}>{index + 1}</div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-gray-800 dark:text-white truncate">{ward.name || ward.id}</p>
                     <div className="h-1.5 rounded-full bg-gray-100 dark:bg-white/10 mt-1 overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-gradient-to-r from-civic-blue to-civic-green"
+                        className="h-full rounded-full bg-gradient-to-r from-lime-400 to-civic-green"
                         style={{ width: `${ward.score || 0}%` }}
                       />
                     </div>
                   </div>
-                  <span className="text-sm font-bold text-civic-blue dark:text-civic-green">{ward.score?.toFixed?.(0) || '—'}</span>
+                  <span className="text-sm font-bold text-civic-green">{ward.score?.toFixed?.(0) || '—'}</span>
                 </div>
               ))}
             </div>

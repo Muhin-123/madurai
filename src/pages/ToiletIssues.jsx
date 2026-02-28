@@ -26,7 +26,7 @@ function IssueForm({ onClose }) {
         </div>
       </motion.div>
       <h3 className="text-lg font-bold text-gray-800 dark:text-white mb-1">Issue Reported!</h3>
-      <p className="text-xs text-gray-400 mb-3">Tracking ID: <span className="font-mono font-bold text-civic-blue dark:text-civic-green">{id}</span></p>
+      <p className="text-xs text-gray-400 mb-3">Tracking ID: <span className="font-mono font-bold text-civic-green dark:text-civic-green">{id}</span></p>
       <button onClick={onClose} className="btn-primary">Close</button>
     </div>
   );
@@ -42,7 +42,7 @@ function IssueForm({ onClose }) {
         <div className="grid grid-cols-2 gap-2">
           {ISSUE_TYPES.map(t => (
             <button key={t} onClick={() => setForm(f => ({ ...f, issue: t }))}
-              className={`p-2.5 rounded-xl text-xs font-medium border text-left transition-all ${form.issue === t ? 'border-civic-blue dark:border-civic-green bg-civic-blue/10 dark:bg-civic-green/10 text-civic-blue dark:text-civic-green' : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400'}`}>{t}</button>
+              className={`p-2.5 rounded-xl text-xs font-medium border text-left transition-all ${form.issue === t ? 'border-civic-green dark:border-civic-green bg-civic-green/10 dark:bg-civic-green/10 text-civic-green dark:text-civic-green' : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400'}`}>{t}</button>
           ))}
         </div>
       </div>
@@ -89,8 +89,8 @@ export default function ToiletIssues() {
 
       <div className="grid grid-cols-3 gap-4 mb-6">
         {[
-          { label: 'Total Reported', value: mockToiletComplaints.length, color: 'from-civic-blue to-blue-600' },
-          { label: 'Pending', value: mockToiletComplaints.filter(c => c.status === 'Pending').length, color: 'from-alert-amber to-orange-500' },
+          { label: 'Total Reported', value: mockToiletComplaints.length, color: 'from-civic-green to-green-600' },
+          { label: 'Pending', value: mockToiletComplaints.filter(c => c.status === 'Pending').length, color: 'from-green-600 to-green-500' },
           { label: 'Resolved Today', value: mockToiletComplaints.filter(c => c.status === 'Resolved').length, color: 'from-civic-green to-emerald-600' },
         ].map(({ label, value, color }) => (
           <div key={label} className="glass-card p-4 text-center">
@@ -108,7 +108,7 @@ export default function ToiletIssues() {
         <div className="flex gap-2">
           {['All', 'Pending', 'In Progress', 'Resolved'].map(f => (
             <button key={f} onClick={() => setFilter(f)}
-              className={`px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${filter === f ? 'bg-civic-blue dark:bg-civic-green text-white' : 'bg-white dark:bg-navy-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10'}`}>{f}</button>
+              className={`px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${filter === f ? 'bg-civic-green dark:bg-civic-green text-white' : 'bg-white dark:bg-navy-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10'}`}>{f}</button>
           ))}
         </div>
       </div>
@@ -118,8 +118,8 @@ export default function ToiletIssues() {
           <motion.div key={c.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }} className="glass-card p-4">
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-alert-purple/10 flex items-center justify-center flex-shrink-0">
-                  <Toilet className="w-5 h-5 text-alert-purple" />
+                <div className="w-10 h-10 rounded-xl bg-civic-green/10 flex items-center justify-center flex-shrink-0">
+                  <Toilet className="w-5 h-5 text-civic-green" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
@@ -135,7 +135,7 @@ export default function ToiletIssues() {
                 </div>
               </div>
               {c.status !== 'Resolved' && (
-                <button className="text-xs px-3 py-1.5 rounded-lg bg-civic-blue/10 text-civic-blue dark:bg-civic-green/10 dark:text-civic-green font-medium">
+                <button className="text-xs px-3 py-1.5 rounded-lg bg-civic-green/10 text-civic-green dark:bg-civic-green/10 dark:text-civic-green font-medium">
                   Update
                 </button>
               )}
@@ -152,7 +152,7 @@ export default function ToiletIssues() {
               className="glass-card w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                  <Toilet className="w-5 h-5 text-civic-blue dark:text-civic-green" /> Report Toilet Issue
+                  <Toilet className="w-5 h-5 text-civic-green dark:text-civic-green" /> Report Toilet Issue
                 </h2>
                 <button onClick={() => setShowForm(false)} className="p-1.5 rounded-xl hover:bg-white/20 text-gray-400"><X className="w-5 h-5" /></button>
               </div>

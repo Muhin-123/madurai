@@ -7,7 +7,7 @@ import EmptyState from '../components/ui/EmptyState';
 
 const STATUS_CONFIG = {
   Critical: { color: 'text-alert-red', bg: 'bg-alert-red/10', border: 'border-alert-red/30', badge: 'badge-red' },
-  Warning: { color: 'text-alert-amber', bg: 'bg-alert-amber/10', border: 'border-alert-amber/30', badge: 'badge-amber' },
+  Warning: { color: 'text-lime-500', bg: 'bg-lime-500/10', border: 'border-lime-500/30', badge: 'badge-amber' },
   Good: { color: 'text-civic-green', bg: 'bg-civic-green/10', border: 'border-civic-green/30', badge: 'badge-green' },
 };
 
@@ -22,7 +22,7 @@ function latLngToXY(lat, lng) {
 
 const fillColor = (fill) => {
   if (fill > 80) return 'bg-alert-red';
-  if (fill >= 50) return 'bg-alert-amber';
+  if (fill >= 50) return 'bg-lime-500';
   return 'bg-civic-green';
 };
 
@@ -62,10 +62,9 @@ export default function SmartBins() {
       <div className="flex gap-2 mb-6 overflow-x-auto pb-1">
         {Object.entries(counts).map(([status, count]) => (
           <button key={status} onClick={() => setFilter(status)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-              filter === status ? 'bg-civic-blue dark:bg-civic-green text-white shadow-glow' : 'glass-card text-gray-600 dark:text-gray-400'
-            }`}>
-            <span className={`w-2 h-2 rounded-full ${status === 'Critical' ? 'bg-alert-red' : status === 'Warning' ? 'bg-alert-amber' : status === 'Good' ? 'bg-civic-green' : 'bg-gray-400'}`} />
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${filter === status ? 'bg-civic-green dark:bg-civic-green text-white shadow-glow' : 'glass-card text-gray-600 dark:text-gray-400'
+              }`}>
+            <span className={`w-2 h-2 rounded-full ${status === 'Critical' ? 'bg-alert-red' : status === 'Warning' ? 'bg-lime-500' : status === 'Good' ? 'bg-civic-green' : 'bg-gray-400'}`} />
             {status} <span className="font-bold">{count}</span>
           </button>
         ))}
@@ -77,11 +76,11 @@ export default function SmartBins() {
             <h2 className="section-title">Live Bin Map</h2>
             <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
               <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-civic-green inline-block" /> Good</span>
-              <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-alert-amber inline-block" /> Warning</span>
+              <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-lime-500 inline-block" /> Warning</span>
               <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-alert-red inline-block" /> Critical</span>
             </div>
           </div>
-          <svg viewBox={`0 0 ${MAP_W} ${MAP_H}`} className="w-full bg-gradient-to-br from-slate-100 to-blue-50 dark:from-navy-800 dark:to-navy-900">
+          <svg viewBox={`0 0 ${MAP_W} ${MAP_H}`} className="w-full bg-gradient-to-br from-slate-100 to-green-50 dark:from-navy-800 dark:to-navy-900">
             <defs>
               <pattern id="mapgrid" width="50" height="50" patternUnits="userSpaceOnUse">
                 <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(15,76,129,0.06)" strokeWidth="1" />
@@ -92,7 +91,7 @@ export default function SmartBins() {
             {filtered.filter((b) => b.lat && b.lng).map((bin) => {
               const { x, y } = latLngToXY(bin.lat, bin.lng);
               const isCrit = bin.status === 'Critical';
-              const color = isCrit ? '#E53935' : bin.status === 'Warning' ? '#FFED4E' : '#FFD700';
+              const color = isCrit ? '#E53935' : bin.status === 'Warning' ? '#3B82F6' : '#10B981';
               return (
                 <g key={bin.id} onClick={() => setSelected(bin)} style={{ cursor: 'pointer' }}>
                   {isCrit && (
@@ -100,76 +99,79 @@ export default function SmartBins() {
                       <animate attributeName="r" values="16;24;16" dur="2s" repeatCount="indefinite" />
                     </circle>
                   )}
-                  <circle cx={x} cy={y} r={selected?.id === bin.id ? 13 : 11} fill={color} stroke="white" strokeWidth={2} />
+                  <circle cx={x} cy={y} r={selected?.id === bin.id ? 13 : 11} fill={bin.status === 'Critical' ? '#E53935' : bin.status === 'Warning' ? '#A3E635' : '#22C55E'} stroke="white" strokeWidth={2} />
                   <text x={x} y={y + 4} textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">{bin.fill}%</text>
                 </g>
               );
             })}
           </svg>
         </div>
-      )}
+      )
+      }
 
-      {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
-        </div>
-      ) : filtered.length === 0 ? (
-        <EmptyState title="No bins found" description="No bins match the selected filter." />
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map((bin, i) => {
-            const cfg = STATUS_CONFIG[bin.status] || STATUS_CONFIG.Good;
-            return (
-              <motion.div
-                key={bin.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: i * 0.05 }}
-                onClick={() => setSelected(selected?.id === bin.id ? null : bin)}
-                className={`glass-card p-4 cursor-pointer border ${cfg.border} transition-all hover:scale-[1.02] ${bin.status === 'Critical' ? 'animate-glow-red' : ''}`}
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div className={`w-10 h-10 rounded-xl ${cfg.bg} flex items-center justify-center`}>
-                    <Trash2 className={`w-5 h-5 ${cfg.color}`} />
+      {
+        loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+        ) : filtered.length === 0 ? (
+          <EmptyState title="No bins found" description="No bins match the selected filter." />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filtered.map((bin, i) => {
+              const cfg = STATUS_CONFIG[bin.status] || STATUS_CONFIG.Good;
+              return (
+                <motion.div
+                  key={bin.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: i * 0.05 }}
+                  onClick={() => setSelected(selected?.id === bin.id ? null : bin)}
+                  className={`glass-card p-4 cursor-pointer border ${cfg.border} transition-all hover:scale-[1.02] ${bin.status === 'Critical' ? 'animate-glow-red' : ''}`}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className={`w-10 h-10 rounded-xl ${cfg.bg} flex items-center justify-center`}>
+                      <Trash2 className={`w-5 h-5 ${cfg.color}`} />
+                    </div>
+                    <span className={cfg.badge}>{bin.status}</span>
                   </div>
-                  <span className={cfg.badge}>{bin.status}</span>
-                </div>
-                <div className="mb-2">
-                  <div className="flex justify-between text-xs mb-1.5">
-                    <span className="font-mono text-gray-500 dark:text-gray-400">{bin.id}</span>
-                    <span className={`font-bold ${cfg.color}`}>{bin.fill ?? '—'}%</span>
+                  <div className="mb-2">
+                    <div className="flex justify-between text-xs mb-1.5">
+                      <span className="font-mono text-gray-500 dark:text-gray-400">{bin.id}</span>
+                      <span className={`font-bold ${cfg.color}`}>{bin.fill ?? '—'}%</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${bin.fill ?? 0}%` }}
+                        transition={{ duration: 1, delay: i * 0.05 }}
+                        className={`h-full rounded-full ${fillColor(bin.fill ?? 0)}`}
+                      />
+                    </div>
                   </div>
-                  <div className="h-2 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${bin.fill ?? 0}%` }}
-                      transition={{ duration: 1, delay: i * 0.05 }}
-                      className={`h-full rounded-full ${fillColor(bin.fill ?? 0)}`}
-                    />
-                  </div>
-                </div>
-                <p className="text-sm font-semibold text-gray-800 dark:text-white mb-1">{bin.ward || bin.location || '—'}</p>
-                {bin.last_cleaned && (
-                  <div className="flex items-center gap-1 text-xs text-gray-400">
-                    <Clock className="w-3 h-3" />
-                    <span>Cleaned: {bin.last_cleaned}</span>
-                  </div>
-                )}
-                {bin.lid_open && (
-                  <div className="mt-2 text-xs text-alert-amber flex items-center gap-1">
-                    <AlertTriangle className="w-3 h-3" /> Lid Open
-                  </div>
-                )}
-                {bin.status === 'Critical' && (
-                  <button className="mt-3 w-full py-1.5 rounded-xl bg-alert-red text-white text-xs font-semibold hover:bg-alert-red/90 transition-colors">
-                    🚨 Assign Collection
-                  </button>
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
-      )}
+                  <p className="text-sm font-semibold text-gray-800 dark:text-white mb-1">{bin.ward || bin.location || '—'}</p>
+                  {bin.last_cleaned && (
+                    <div className="flex items-center gap-1 text-xs text-gray-400">
+                      <Clock className="w-3 h-3" />
+                      <span>Cleaned: {bin.last_cleaned}</span>
+                    </div>
+                  )}
+                  {bin.lid_open && (
+                    <div className="mt-2 text-xs text-lime-500 flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3" /> Lid Open
+                    </div>
+                  )}
+                  {bin.status === 'Critical' && (
+                    <button className="mt-3 w-full py-1.5 rounded-xl bg-alert-red text-white text-xs font-semibold hover:bg-alert-red/90 transition-colors">
+                      🚨 Assign Collection
+                    </button>
+                  )}
+                </motion.div>
+              );
+            })}
+          </div>
+        )
+      }
 
       <AnimatePresence>
         {selected && (
@@ -235,6 +237,6 @@ export default function SmartBins() {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </div >
   );
 }

@@ -40,7 +40,7 @@ const PARTICLES = Array.from({ length: 20 }, (_, i) => ({
   width: 4 + Math.random() * 12,
   left: `${Math.random() * 100}%`,
   top: `${Math.random() * 100}%`,
-  bg: i % 3 === 0 ? '#FFD700' : i % 3 === 1 ? '#FF8C00' : '#FFED4E',
+  bg: i % 3 === 0 ? '#22C55E' : i % 3 === 1 ? '#A3E635' : '#15803D',
 }));
 
 export default function HeroSection() {
@@ -55,18 +55,21 @@ export default function HeroSection() {
   const criticalAlerts = useCountUp(stats.criticalBins, 1200, 700);
 
   const heroStats = [
-    { label: 'Total Complaints Today', value: complaintsToday, suffix: '', color: 'from-blue-400 to-civic-blue' },
-    { label: 'Active Smart Bins', value: activeBinsCount, suffix: totalBins ? `/${totalBins}` : '', color: 'from-civic-green to-emerald-500' },
-    { label: 'Critical Alerts', value: criticalAlerts, suffix: '', color: 'from-alert-red to-orange-500' },
+    { label: 'Total Complaints Today', value: complaintsToday, suffix: '', color: 'from-green-400 to-green-600' },
+    { label: 'Active Smart Bins', value: activeBinsCount, suffix: totalBins ? `/${totalBins}` : '', color: 'from-lime-400 to-emerald-500' },
+    { label: 'Critical Alerts', value: criticalAlerts, suffix: '', color: 'from-red-500 to-lime-500' },
   ];
 
   return (
     <div className="relative hero-gradient rounded-3xl overflow-hidden mb-6 shadow-2xl">
-      <div className="absolute inset-0 pointer-events-none">
-        {PARTICLES.map((p) => (
-          <FloatingParticle
-            key={p.id}
-            style={{ width: p.width, height: p.width, left: p.left, top: p.top, background: p.bg }}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {PARTICLES_PROPS.map((p, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-lime-500/10"
+            style={{ width: p.width, height: p.width, left: p.left, top: p.top }}
+            animate={{ y: [0, -30, 0], x: [0, 15, 0], opacity: [0.1, 0.3, 0.1] }}
+            transition={{ duration: p.duration, repeat: Infinity, ease: 'easeInOut', delay: p.delay }}
           />
         ))}
         <div className="absolute inset-0 bg-grid-dark opacity-30" />

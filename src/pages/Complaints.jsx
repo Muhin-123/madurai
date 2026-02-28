@@ -14,7 +14,7 @@ import { SkeletonRow } from '../components/ui/SkeletonLoader';
 import EmptyState from '../components/ui/EmptyState';
 import toast from 'react-hot-toast';
 
-const STATUS_BADGE = { Pending: 'badge-amber', 'In Progress': 'badge-blue', Resolved: 'badge-green' };
+const STATUS_BADGE = { Pending: 'badge-amber', 'In Progress': 'badge-amber', Resolved: 'badge-green' };
 const PRIORITY_BADGE = { High: 'badge-red', Medium: 'badge-amber', Low: 'badge-green' };
 const COMPLAINT_TYPES = ['Garbage Overflow', 'Open Drain', 'Dead Animal', 'Street Cleaning', 'Blocked Drain', 'Illegal Dumping', 'Toilet Issue', 'Other'];
 
@@ -57,7 +57,7 @@ function AssignModal({ complaint, workers, onClose }) {
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-gray-800 dark:text-white flex items-center gap-2">
-            <UserCheck className="w-4 h-4 text-civic-blue dark:text-civic-green" /> Assign to Worker
+            <UserCheck className="w-4 h-4 text-civic-green dark:text-civic-green" /> Assign to Worker
           </h3>
           <button onClick={onClose} className="p-1.5 rounded-xl hover:bg-white/20 text-gray-400">
             <X className="w-4 h-4" />
@@ -71,13 +71,12 @@ function AssignModal({ complaint, workers, onClose }) {
               <button
                 key={w.id}
                 onClick={() => setSelectedWorker(w.id)}
-                className={`w-full flex items-center gap-3 p-3 rounded-xl border text-sm text-left transition-all ${
-                  selectedWorker === w.id
-                    ? 'border-civic-blue dark:border-civic-green bg-civic-blue/10 dark:bg-civic-green/10'
-                    : 'border-gray-200 dark:border-white/10 hover:border-civic-blue/40'
-                }`}
+                className={`w-full flex items-center gap-3 p-3 rounded-xl border text-sm text-left transition-all ${selectedWorker === w.id
+                  ? 'border-civic-green dark:border-civic-green bg-civic-green/10 dark:bg-civic-green/10'
+                  : 'border-gray-200 dark:border-white/10 hover:border-civic-green/40'
+                  }`}
               >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-civic-blue to-civic-green flex items-center justify-center text-white text-xs font-bold">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-civic-green to-civic-green flex items-center justify-center text-white text-xs font-bold">
                   {(w.name || 'W').charAt(0)}
                 </div>
                 <div>
@@ -145,11 +144,10 @@ function StatusUpdateModal({ complaint, onClose }) {
             <button
               key={s}
               onClick={() => setStatus(s)}
-              className={`w-full py-2.5 rounded-xl text-sm font-medium border transition-all ${
-                status === s
-                  ? 'border-civic-blue dark:border-civic-green bg-civic-blue/10 dark:bg-civic-green/10 text-civic-blue dark:text-civic-green'
-                  : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400'
-              }`}
+              className={`w-full py-2.5 rounded-xl text-sm font-medium border transition-all ${status === s
+                ? 'border-civic-green dark:border-civic-green bg-civic-green/10 dark:bg-civic-green/10 text-civic-green dark:text-civic-green'
+                : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400'
+                }`}
             >
               {s}
             </button>
@@ -223,7 +221,7 @@ function ComplaintForm({ onClose }) {
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Registered successfully. +5 points added to your account.</p>
         <div className="glass-card p-4 mb-6 inline-block">
           <p className="text-xs text-gray-400 mb-1">Tracking ID</p>
-          <p className="text-2xl font-mono font-bold text-civic-blue dark:text-civic-green">{trackId}</p>
+          <p className="text-2xl font-mono font-bold text-civic-green dark:text-civic-green">{trackId}</p>
         </div>
         <div className="space-y-2 text-sm text-left max-w-xs mx-auto">
           {['Complaint Received ✓', 'Ward Officer Notified ✓', 'Processing...'].map((s, i) => (
@@ -242,7 +240,7 @@ function ComplaintForm({ onClose }) {
     <div>
       <div className="flex gap-1 mb-6">
         {[1, 2, 3].map((s) => (
-          <div key={s} className={`flex-1 h-1.5 rounded-full transition-all duration-500 ${step >= s ? 'bg-gradient-to-r from-civic-blue to-civic-green' : 'bg-gray-200 dark:bg-white/10'}`} />
+          <div key={s} className={`flex-1 h-1.5 rounded-full transition-all duration-500 ${step >= s ? 'bg-gradient-to-r from-civic-green to-civic-green' : 'bg-gray-200 dark:bg-white/10'}`} />
         ))}
       </div>
       {step === 1 && (
@@ -253,11 +251,10 @@ function ComplaintForm({ onClose }) {
               <button
                 key={type}
                 onClick={() => setForm((f) => ({ ...f, type }))}
-                className={`p-3 rounded-xl text-sm font-medium border text-left transition-all ${
-                  form.type === type
-                    ? 'border-civic-blue dark:border-civic-green bg-civic-blue/10 dark:bg-civic-green/10 text-civic-blue dark:text-civic-green'
-                    : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:border-civic-blue/50'
-                }`}
+                className={`p-3 rounded-xl text-sm font-medium border text-left transition-all ${form.type === type
+                  ? 'border-civic-green dark:border-civic-green bg-civic-green/10 dark:bg-civic-green/10 text-civic-green dark:text-civic-green'
+                  : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:border-civic-green/50'
+                  }`}
               >
                 {type}
               </button>
@@ -275,9 +272,8 @@ function ComplaintForm({ onClose }) {
             <div className="flex gap-2">
               {['Low', 'Medium', 'High'].map((p) => (
                 <button key={p} onClick={() => setForm((f) => ({ ...f, priority: p }))}
-                  className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-all ${
-                    form.priority === p ? 'border-civic-blue bg-civic-blue/10 text-civic-blue dark:border-civic-green dark:bg-civic-green/10 dark:text-civic-green' : 'border-gray-200 dark:border-white/10 text-gray-500'
-                  }`}>{p}</button>
+                  className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-all ${form.priority === p ? 'border-civic-green bg-civic-green/10 text-civic-green dark:border-civic-green dark:bg-civic-green/10 dark:text-civic-green' : 'border-gray-200 dark:border-white/10 text-gray-500'
+                    }`}>{p}</button>
               ))}
             </div>
           </div>
@@ -301,9 +297,8 @@ function ComplaintForm({ onClose }) {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Upload Photo *</label>
-            <label className={`flex flex-col items-center justify-center h-28 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${
-              form.photo ? 'border-civic-green bg-civic-green/5' : 'border-gray-200 dark:border-white/20 hover:border-civic-blue dark:hover:border-civic-green'
-            }`}>
+            <label className={`flex flex-col items-center justify-center h-28 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${form.photo ? 'border-civic-green bg-civic-green/5' : 'border-gray-200 dark:border-white/20 hover:border-civic-green dark:hover:border-civic-green'
+              }`}>
               <Camera className={`w-8 h-8 mb-2 ${form.photo ? 'text-civic-green' : 'text-gray-300 dark:text-gray-600'}`} />
               <span className="text-sm text-gray-400">{form.photo ? form.photo.name : 'Click to upload photo (required)'}</span>
               <input type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
@@ -395,9 +390,8 @@ export default function Complaints() {
         <div className="flex gap-2 overflow-x-auto pb-1">
           {['All', 'Pending', 'In Progress', 'Resolved'].map((f) => (
             <button key={f} onClick={() => setFilter(f)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
-                filter === f ? 'bg-civic-blue dark:bg-civic-green text-white shadow-glow' : 'bg-white dark:bg-navy-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10 hover:border-civic-blue dark:hover:border-white/20'
-              }`}
+              className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${filter === f ? 'bg-civic-green dark:bg-civic-green text-white shadow-glow' : 'bg-white dark:bg-navy-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10 hover:border-civic-green dark:hover:border-white/20'
+                }`}
             >{f}</button>
           ))}
         </div>
@@ -425,12 +419,10 @@ export default function Complaints() {
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                    c.priority === 'High' ? 'bg-alert-red/10' : c.priority === 'Medium' ? 'bg-alert-amber/10' : 'bg-civic-green/10'
-                  }`}>
-                    <AlertCircle className={`w-5 h-5 ${
-                      c.priority === 'High' ? 'text-alert-red' : c.priority === 'Medium' ? 'text-alert-amber' : 'text-civic-green'
-                    }`} />
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${c.priority === 'High' ? 'bg-alert-red/10' : c.priority === 'Medium' ? 'bg-amber-500/10' : 'bg-green-500/10'
+                    }`}>
+                    <AlertCircle className={`w-5 h-5 ${c.priority === 'High' ? 'text-alert-red' : c.priority === 'Medium' ? 'text-amber-500' : 'text-green-500'
+                      }`} />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
@@ -450,13 +442,13 @@ export default function Complaints() {
                     <>
                       <button
                         onClick={() => setAssignTarget(c)}
-                        className="text-xs px-2 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-civic-blue dark:text-blue-400 font-medium hover:bg-blue-100 transition-colors"
+                        className="text-xs px-2 py-1.5 rounded-lg bg-green-50 dark:bg-green-900/20 text-civic-green dark:text-green-400 font-medium hover:bg-green-100 transition-colors"
                       >
                         Assign
                       </button>
                       <button
                         onClick={() => setStatusTarget(c)}
-                        className="text-xs px-2 py-1.5 rounded-lg bg-civic-blue/10 text-civic-blue dark:bg-civic-green/10 dark:text-civic-green font-medium hover:bg-civic-blue/20 transition-colors"
+                        className="text-xs px-2 py-1.5 rounded-lg bg-civic-green/10 text-civic-green dark:bg-civic-green/10 dark:text-civic-green font-medium hover:bg-civic-green/20 transition-colors"
                       >
                         Update
                       </button>
@@ -529,7 +521,7 @@ export default function Complaints() {
             >
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-2">
-                  <QrCode className="w-5 h-5 text-civic-blue dark:text-civic-green" />
+                  <QrCode className="w-5 h-5 text-civic-green dark:text-civic-green" />
                   <h2 className="text-lg font-bold text-gray-800 dark:text-white">File Complaint</h2>
                 </div>
                 <button onClick={() => setShowForm(false)} className="p-1.5 rounded-xl hover:bg-white/20 text-gray-400"><X className="w-5 h-5" /></button>

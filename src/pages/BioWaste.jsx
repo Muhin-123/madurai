@@ -12,13 +12,16 @@ import EmptyState from '../components/ui/EmptyState';
 import toast from 'react-hot-toast';
 
 const BIO_TYPES = ['All', 'Jasmine', 'Rose', 'Temple Flowers', 'Banana Leaves', 'Coconut Shell', 'Vegetable Waste'];
-const TYPE_COLORS = {
-  Jasmine: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400',
-  Rose: 'bg-pink-100 text-pink-700 dark:bg-pink-900/20 dark:text-pink-400',
-  'Temple Flowers': 'bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400',
-  'Banana Leaves': 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400',
-  'Coconut Shell': 'bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400',
-  'Vegetable Waste': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400',
+const CATEGORY_COLORS = {
+  'Organic Food': 'badge-green',
+  'Garden Waste': 'badge-green',
+  'Jasmine': 'badge-green',
+  'Rose': 'badge-green', // Assuming Rose also becomes badge-green
+  'Temple Flowers': 'badge-green',
+  'Banana Leaves': 'badge-green', // Assuming Banana Leaves also becomes badge-green
+  'Coconut Shell': 'badge-amber', // Assuming Coconut Shell becomes badge-amber
+  'Vegetable Waste': 'badge-green', // Assuming Vegetable Waste also becomes badge-green
+  'Other': 'badge-amber'
 };
 
 function ListingForm({ onClose }) {
@@ -104,11 +107,10 @@ function ListingForm({ onClose }) {
             <button
               key={t}
               onClick={() => setForm((f) => ({ ...f, type: t }))}
-              className={`p-2.5 rounded-xl text-sm font-medium border text-left transition-all ${
-                form.type === t
-                  ? 'border-civic-green bg-civic-green/10 text-civic-green'
-                  : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400'
-              }`}
+              className={`p-2.5 rounded-xl text-sm font-medium border text-left transition-all ${form.type === t
+                ? 'border-civic-green bg-civic-green/10 text-civic-green'
+                : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400'
+                }`}
             >
               {t}
             </button>
@@ -197,7 +199,7 @@ export default function BioWaste() {
 
       <div className="grid grid-cols-3 gap-4 mb-6">
         {[
-          { label: 'Active Listings', value: loading ? '—' : listings.length, color: 'from-civic-blue to-blue-600', icon: '📦' },
+          { label: 'Active Listings', value: loading ? '—' : listings.length, color: 'from-civic-green to-green-600', icon: '📦' },
           { label: 'Total Waste (kg)', value: loading ? '—' : totalWaste.toLocaleString(), color: 'from-civic-green to-emerald-600', icon: '🌱' },
           { label: 'CO₂ Saved (kg)', value: loading ? '—' : totalCO2.toFixed(0), color: 'from-alert-purple to-purple-600', icon: '🌍' },
         ].map(({ label, value, color, icon }) => (
@@ -217,7 +219,7 @@ export default function BioWaste() {
         <div className="flex gap-2 overflow-x-auto pb-1">
           {BIO_TYPES.map((t) => (
             <button key={t} onClick={() => setTypeFilter(t)}
-              className={`px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${typeFilter === t ? 'bg-civic-blue dark:bg-civic-green text-white' : 'glass-card text-gray-600 dark:text-gray-400'}`}>{t}</button>
+              className={`px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${typeFilter === t ? 'bg-civic-green dark:bg-civic-green text-white' : 'glass-card text-gray-600 dark:text-gray-400'}`}>{t}</button>
           ))}
         </div>
       </div>
@@ -259,7 +261,7 @@ export default function BioWaste() {
               <div className="space-y-1.5 mb-4">
                 <div className="flex justify-between text-xs">
                   <span className="text-gray-400">Price</span>
-                  <span className="font-bold text-civic-blue dark:text-civic-green">
+                  <span className="font-bold text-civic-green dark:text-civic-green">
                     {item.price_per_kg === 0 ? 'Free' : `₹${item.price_per_kg}/kg`}
                   </span>
                 </div>
@@ -277,7 +279,7 @@ export default function BioWaste() {
               <div className="flex gap-2">
                 <button
                   onClick={() => setContact(item)}
-                  className="flex-1 py-2 rounded-xl bg-civic-blue/10 text-civic-blue dark:text-civic-green text-xs font-semibold flex items-center justify-center gap-1 hover:bg-civic-blue/20 transition-colors"
+                  className="flex-1 py-2 rounded-xl bg-civic-green/10 text-civic-green dark:text-civic-green text-xs font-semibold flex items-center justify-center gap-1 hover:bg-civic-green/20 transition-colors"
                 >
                   <Phone className="w-3 h-3" /> Contact
                 </button>
@@ -306,7 +308,7 @@ export default function BioWaste() {
                 <div className="glass-card p-3"><p className="text-xs text-gray-400 mb-0.5">Listing</p><p className="font-semibold text-gray-800 dark:text-white">{contact.type} · {contact.weight_kg} kg</p></div>
                 <div className="glass-card p-3"><p className="text-xs text-gray-400 mb-0.5">Location</p><p className="font-semibold text-gray-800 dark:text-white">{contact.location}</p></div>
                 {contact.contact && (
-                  <div className="glass-card p-3"><p className="text-xs text-gray-400 mb-0.5">Contact</p><p className="font-semibold text-civic-blue dark:text-civic-green">{contact.contact}</p></div>
+                  <div className="glass-card p-3"><p className="text-xs text-gray-400 mb-0.5">Contact</p><p className="font-semibold text-civic-green dark:text-civic-green">{contact.contact}</p></div>
                 )}
               </div>
               {contact.contact ? (

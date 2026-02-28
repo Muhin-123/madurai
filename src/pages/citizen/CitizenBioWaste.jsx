@@ -12,12 +12,12 @@ import toast from 'react-hot-toast';
 
 const BIO_TYPES = ['Jasmine', 'Rose', 'Temple Flowers', 'Banana Leaves', 'Coconut Shell', 'Vegetable Waste'];
 const TYPE_COLORS = {
-  Jasmine: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400',
-  Rose: 'bg-pink-100 text-pink-700 dark:bg-pink-900/20 dark:text-pink-400',
-  'Temple Flowers': 'bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400',
+  Jasmine: 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400',
+  Rose: 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400',
+  'Temple Flowers': 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400',
   'Banana Leaves': 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400',
   'Coconut Shell': 'bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400',
-  'Vegetable Waste': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400',
+  'Vegetable Waste': 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400',
 };
 
 export default function CitizenBioWaste() {
@@ -93,7 +93,7 @@ export default function CitizenBioWaste() {
           { id: 'mine', label: `📦 My Listings (${myListings.length})` },
         ].map(({ id, label }) => (
           <button key={id} onClick={() => setActiveTab(id)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === id ? 'bg-civic-blue dark:bg-civic-green text-white' : 'glass-card text-gray-600 dark:text-gray-400'}`}>
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${activeTab === id ? 'bg-civic-green text-white shadow-glow' : 'glass-card text-gray-600 dark:text-gray-400'}`}>
             {label}
           </button>
         ))}
@@ -125,7 +125,7 @@ export default function CitizenBioWaste() {
                   )}
                   <div className="flex items-start justify-between mb-2">
                     <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${TYPE_COLORS[item.type] || 'badge-green'}`}>{item.type}</span>
-                    <span className="text-xs font-bold text-civic-blue dark:text-civic-green">{item.price_per_kg === 0 ? 'Free' : `₹${item.price_per_kg}/kg`}</span>
+                    <span className="text-xs font-bold text-civic-green">{item.price_per_kg === 0 ? 'Free' : `₹${item.price_per_kg}/kg`}</span>
                   </div>
                   <p className="text-sm font-semibold text-gray-800 dark:text-white">{item.weight_kg} kg available</p>
                   <div className="flex items-center gap-1 text-xs text-gray-400 mt-1">
@@ -135,7 +135,7 @@ export default function CitizenBioWaste() {
                     <Wind className="w-3 h-3" /> ~{(item.weight_kg * 0.25).toFixed(1)} kg CO₂ saved
                   </div>
                   <button onClick={() => setContact(item)}
-                    className="mt-3 w-full py-2 rounded-xl bg-civic-blue/10 text-civic-blue dark:text-civic-green text-xs font-semibold flex items-center justify-center gap-1 hover:bg-civic-blue/20 transition-colors">
+                    className="mt-3 w-full py-2 rounded-xl bg-green-500/10 text-civic-green text-xs font-semibold flex items-center justify-center gap-1 hover:bg-green-500/20 transition-colors">
                     <Phone className="w-3 h-3" /> Contact Seller
                   </button>
                 </motion.div>
@@ -167,7 +167,7 @@ export default function CitizenBioWaste() {
                 <p className="text-xs text-gray-400 mt-0.5">{item.location}</p>
                 <div className="flex justify-between text-xs mt-2">
                   <span className="text-gray-400">Price</span>
-                  <span className="font-bold text-civic-blue dark:text-civic-green">{item.price_per_kg === 0 ? 'Free' : `₹${item.price_per_kg}/kg`}</span>
+                  <span className="font-bold text-civic-green dark:text-civic-green">{item.price_per_kg === 0 ? 'Free' : `₹${item.price_per_kg}/kg`}</span>
                 </div>
                 {item.status === 'sold' && (
                   <div className="mt-3 p-2 bg-civic-green/10 rounded-xl text-xs text-civic-green font-medium">
@@ -195,7 +195,7 @@ export default function CitizenBioWaste() {
                 <div className="glass-card p-3"><p className="text-xs text-gray-400">Seller</p><p className="font-semibold">{contact.seller_name}</p></div>
                 <div className="glass-card p-3"><p className="text-xs text-gray-400">Item</p><p className="font-semibold">{contact.type} · {contact.weight_kg} kg</p></div>
                 <div className="glass-card p-3"><p className="text-xs text-gray-400">Location</p><p className="font-semibold">{contact.location}</p></div>
-                {contact.contact && <div className="glass-card p-3"><p className="text-xs text-gray-400">Phone</p><p className="font-semibold text-civic-blue dark:text-civic-green">{contact.contact}</p></div>}
+                {contact.contact && <div className="glass-card p-3"><p className="text-xs text-gray-400">Phone</p><p className="font-semibold text-civic-green dark:text-civic-green">{contact.contact}</p></div>}
               </div>
               {contact.contact ? (
                 <a href={`tel:${contact.contact}`} className="btn-primary w-full mt-4 flex items-center justify-center gap-2">

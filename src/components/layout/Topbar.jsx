@@ -59,7 +59,7 @@ export default function Topbar({ pageName }) {
     }
   };
 
-  const notifTypeColors = { alert: 'bg-alert-red', info: 'bg-civic-blue', success: 'bg-civic-green' };
+  const notifTypeColors = { alert: 'bg-alert-red', info: 'bg-civic-green', success: 'bg-civic-green' };
   const userName = userProfile?.name || 'User';
   const userRole = userProfile?.role || 'citizen';
 
@@ -68,7 +68,7 @@ export default function Topbar({ pageName }) {
       <div className="flex items-center gap-3">
         <button
           onClick={toggleSidebar}
-          className="p-2 rounded-xl hover:bg-civic-blue/10 text-gray-500 dark:text-gray-400 hover:text-civic-blue dark:hover:text-white transition-all"
+          className="p-2 rounded-xl hover:bg-civic-green/10 text-gray-500 dark:text-gray-400 hover:text-civic-green dark:hover:text-white transition-all"
         >
           <Menu className="w-5 h-5" />
         </button>
@@ -81,11 +81,11 @@ export default function Topbar({ pageName }) {
       <div className="flex items-center gap-2 lg:gap-3">
         <div className="hidden md:flex items-center gap-3 px-3 py-2 glass-card rounded-xl text-xs text-gray-600 dark:text-gray-300">
           <div className="flex items-center gap-1.5">
-            <Cloud className="w-3.5 h-3.5 text-civic-blue dark:text-civic-green" />
+            <Cloud className="w-3.5 h-3.5 text-civic-green dark:text-civic-green" />
             <span className="font-semibold">{WEATHER.temp}°C</span>
           </div>
           <div className="flex items-center gap-1">
-            <Droplets className="w-3 h-3 text-blue-400" />
+            <Droplets className="w-3 h-3 text-green-400" />
             <span>{WEATHER.humidity}%</span>
           </div>
           <div className="flex items-center gap-1">
@@ -95,7 +95,7 @@ export default function Topbar({ pageName }) {
           <span className="text-gray-400">Madurai</span>
         </div>
 
-        <div className="hidden sm:flex items-center gap-1 px-3 py-2 glass-card rounded-xl text-xs font-mono text-civic-blue dark:text-civic-green font-semibold">
+        <div className="hidden sm:flex items-center gap-1 px-3 py-2 glass-card rounded-xl text-xs font-mono text-civic-green dark:text-civic-green font-semibold">
           {format(time, 'HH:mm:ss')}
         </div>
 
@@ -108,21 +108,21 @@ export default function Topbar({ pageName }) {
 
         <button
           onClick={toggleDarkMode}
-          className="p-2 rounded-xl hover:bg-civic-blue/10 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 transition-all"
+          className="p-2 rounded-xl hover:bg-civic-green/10 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 transition-all"
         >
           <motion.div
             initial={false}
             animate={{ rotate: darkMode ? 180 : 0 }}
             transition={{ duration: 0.3 }}
           >
-            {darkMode ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5" />}
+            {darkMode ? <Sun className="w-5 h-5 text-lime-400" /> : <Moon className="w-5 h-5" />}
           </motion.div>
         </button>
 
         <div ref={notifRef} className="relative">
           <button
             onClick={() => { setShowNotif(!showNotif); setShowProfile(false); }}
-            className="relative p-2 rounded-xl hover:bg-civic-blue/10 text-gray-500 dark:text-gray-400 hover:text-civic-blue dark:hover:text-white transition-all"
+            className="relative p-2 rounded-xl hover:bg-civic-green/10 text-gray-500 dark:text-gray-400 hover:text-civic-green dark:hover:text-white transition-all"
           >
             <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
@@ -143,7 +143,7 @@ export default function Topbar({ pageName }) {
               >
                 <div className="flex items-center justify-between p-4 border-b border-white/10">
                   <h3 className="font-semibold text-gray-800 dark:text-white text-sm">Notifications</h3>
-                  <button onClick={markAllRead} className="flex items-center gap-1 text-xs text-civic-blue dark:text-civic-green hover:underline">
+                  <button onClick={markAllRead} className="flex items-center gap-1 text-xs text-civic-green dark:text-civic-green hover:underline">
                     <CheckCheck className="w-3 h-3" /> Mark all read
                   </button>
                 </div>
@@ -152,7 +152,7 @@ export default function Topbar({ pageName }) {
                     <p className="text-xs text-gray-400 text-center py-6">No new notifications</p>
                   ) : (
                     notifications.map((n) => (
-                      <div key={n.id} className={`flex items-start gap-3 p-4 hover:bg-white/20 dark:hover:bg-white/5 transition-colors border-b border-white/5 ${!n.read ? 'bg-civic-blue/5 dark:bg-civic-green/5' : ''}`}>
+                      <div key={n.id} className={`flex items-start gap-3 p-4 hover:bg-white/20 dark:hover:bg-white/5 transition-colors border-b border-white/5 ${!n.read ? 'bg-civic-green/5 dark:bg-civic-green/5' : ''}`}>
                         <div className={`w-2 h-2 mt-1.5 rounded-full flex-shrink-0 ${notifTypeColors[n.type] || 'bg-gray-400'} ${!n.read ? 'animate-pulse' : 'opacity-30'}`} />
                         <div className="flex-1 min-w-0">
                           <p className="text-xs text-gray-700 dark:text-gray-300 font-medium leading-tight">{n.message}</p>
@@ -170,9 +170,9 @@ export default function Topbar({ pageName }) {
         <div ref={profileRef} className="relative">
           <button
             onClick={() => { setShowProfile(!showProfile); setShowNotif(false); }}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-civic-blue/10 dark:hover:bg-white/10 transition-all"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-civic-green/10 dark:hover:bg-white/10 transition-all"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-civic-blue to-civic-green flex items-center justify-center text-white text-xs font-bold">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-civic-green to-civic-green flex items-center justify-center text-white text-xs font-bold">
               {userName.charAt(0).toUpperCase()}
             </div>
             <div className="hidden sm:block text-left">
@@ -194,7 +194,7 @@ export default function Topbar({ pageName }) {
                 <div className="p-4 border-b border-white/10">
                   <p className="font-semibold text-sm text-gray-800 dark:text-white">{userName}</p>
                   <p className="text-xs text-gray-400">{userProfile?.email}</p>
-                  <span className="text-[10px] font-medium mt-1.5 inline-flex px-2 py-0.5 rounded-full bg-civic-blue/10 text-civic-blue dark:bg-civic-green/10 dark:text-civic-green">
+                  <span className="text-[10px] font-medium mt-1.5 inline-flex px-2 py-0.5 rounded-full bg-civic-green/10 text-civic-green dark:bg-civic-green/10 dark:text-civic-green">
                     {ROLE_LABELS[userRole] || userRole}
                   </span>
                   {userRole === 'citizen' && (

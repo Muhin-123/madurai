@@ -65,7 +65,7 @@ export function AuthProvider({ children }) {
       points: 0,
       avatar_url: null,
       ward: null,
-      created_at: serverTimestamp(),
+      createdAt: serverTimestamp(),
     });
     return cred;
   };

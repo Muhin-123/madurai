@@ -6,12 +6,13 @@ export default {
     extend: {
       colors: {
         civic: {
-          blue: '#FF8C00',
-          'blue-dark': '#E67E22',
-          'blue-light': '#FFA500',
-          green: '#FFD700',
-          'green-dark': '#FFC700',
-          'green-light': '#FFED4E',
+          blue: '#22C55E', // Fresh Green (Primary)
+          'blue-dark': '#174C2F', // Forest Light
+          'blue-light': '#1DB954',
+          green: '#22C55E', // Primary Fresh Green
+          'green-dark': '#0F2E1C', // Forest Dark (Deep Background)
+          'green-light': '#A3E635', // Lime Highlight
+          lime: '#A3E635',
         },
         alert: {
           red: '#E53935',
@@ -52,8 +53,8 @@ export default {
           '50%': { boxShadow: '0 0 20px #E53935, 0 0 40px #E53935' },
         },
         glowGreen: {
-          '0%, 100%': { boxShadow: '0 0 5px #FF8C00, 0 0 10px #FF8C00' },
-          '50%': { boxShadow: '0 0 20px #FF8C00, 0 0 40px #FF8C00' },
+          '0%, 100%': { boxShadow: '0 0 5px #A3E635, 0 0 10px #A3E635' },
+          '50%': { boxShadow: '0 0 20px #A3E635, 0 0 40px #A3E635' },
         },
         shimmer: {
           '0%': { backgroundPosition: '-200% 0' },
@@ -76,10 +77,10 @@ export default {
         xs: '2px',
       },
       boxShadow: {
-        glass: '0 8px 32px rgba(255, 140, 0, 0.15)',
-        'glass-dark': '0 8px 32px rgba(0, 0, 0, 0.4)',
-        glow: '0 0 15px rgba(255, 140, 0, 0.5)',
-        'glow-green': '0 0 15px rgba(255, 140, 0, 0.5)',
+        glass: '0 8px 32px rgba(34, 197, 94, 0.15)',
+        'glass-dark': '0 8px 32px rgba(0, 0, 0, 0.6)',
+        glow: '0 0 15px rgba(163, 230, 53, 0.5)',
+        'glow-green': '0 0 15px rgba(34, 197, 94, 0.5)',
         'glow-red': '0 0 15px rgba(229, 57, 53, 0.5)',
       },
     },

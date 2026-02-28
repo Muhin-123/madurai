@@ -30,10 +30,10 @@ export default function WorkerAnalytics() {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'Total Workers', value: workers.length, icon: <Users className="w-5 h-5" />, color: 'from-civic-blue to-blue-600' },
-          { label: 'Total Assigned', value: totalAssigned, icon: <Clock className="w-5 h-5" />, color: 'from-alert-amber to-orange-500' },
-          { label: 'Total Resolved', value: totalResolved, icon: <CheckCircle2 className="w-5 h-5" />, color: 'from-civic-green to-emerald-500' },
-          { label: 'Resolution Rate', value: totalAssigned > 0 ? `${Math.round((totalResolved / totalAssigned) * 100)}%` : '—', icon: <Star className="w-5 h-5" />, color: 'from-alert-purple to-purple-600' },
+          { label: 'Total Workers', value: workers.length, icon: <Users className="w-5 h-5" />, color: 'from-green-600 to-green-500' },
+          { label: 'Total Assigned', value: totalAssigned, icon: <Clock className="w-5 h-5" />, color: 'from-green-500 to-green-400' },
+          { label: 'Total Resolved', value: totalResolved, icon: <CheckCircle2 className="w-5 h-5" />, color: 'from-civic-green to-lime-500' },
+          { label: 'Resolution Rate', value: totalAssigned > 0 ? `${Math.round((totalResolved / totalAssigned) * 100)}%` : '—', icon: <Star className="w-5 h-5" />, color: 'from-lime-500 to-green-500' },
         ].map(({ label, value, icon, color }) => (
           <div key={label} className="glass-card p-4">
             <div className={`w-9 h-9 rounded-xl mb-3 flex items-center justify-center bg-gradient-to-br ${color} text-white`}>
@@ -62,12 +62,11 @@ export default function WorkerAnalytics() {
               className="glass-card p-5"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg ${
-                  i === 0 ? 'bg-gradient-to-br from-yellow-400 to-orange-500' :
-                  i === 1 ? 'bg-gradient-to-br from-gray-400 to-gray-600' :
-                  i === 2 ? 'bg-gradient-to-br from-amber-600 to-orange-700' :
-                  'bg-gradient-to-br from-civic-blue to-civic-green'
-                }`}>
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-[#0F2E1C] font-bold text-lg ${i === 0 ? 'bg-gradient-to-br from-lime-400 to-green-500' :
+                  i === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-500' :
+                    i === 2 ? 'bg-gradient-to-br from-green-300 to-green-500' :
+                      'bg-gradient-to-br from-green-500 to-green-600'
+                  }`}>
                   {(w.name || 'W').charAt(0)}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -85,11 +84,11 @@ export default function WorkerAnalytics() {
 
               <div className="grid grid-cols-3 gap-2 mb-3 text-center">
                 {[
-                  { label: 'Assigned', value: w.assigned, color: 'text-civic-blue dark:text-civic-blue' },
-                  { label: 'Resolved', value: w.resolved, color: 'text-civic-green' },
-                  { label: 'Pending', value: w.pending, color: 'text-alert-amber' },
+                  { label: 'Assigned', value: w.assigned, color: 'text-green-400' },
+                  { label: 'Resolved', value: w.resolved, color: 'text-lime-400' },
+                  { label: 'Pending', value: w.pending, color: 'text-amber-400' },
                 ].map(({ label, value, color }) => (
-                  <div key={label} className="bg-white/30 dark:bg-white/5 rounded-xl p-2">
+                  <div key={label} className="bg-white/5 rounded-xl p-2">
                     <p className={`text-lg font-black ${color}`}>{value}</p>
                     <p className="text-[10px] text-gray-400">{label}</p>
                   </div>
@@ -103,17 +102,17 @@ export default function WorkerAnalytics() {
                     {w.rate}%
                   </span>
                 </div>
-                <div className="h-2 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
+                <div className="h-2 rounded-full bg-white/10 overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${w.rate}%` }}
                     transition={{ duration: 0.8, delay: i * 0.1 }}
-                    className={`h-full rounded-full ${w.rate >= 80 ? 'bg-civic-green' : w.rate >= 50 ? 'bg-alert-amber' : 'bg-alert-red'}`}
+                    className={`h-full rounded-full ${w.rate >= 80 ? 'bg-lime-400' : w.rate >= 50 ? 'bg-amber-400' : 'bg-red-500'}`}
                   />
                 </div>
               </div>
 
-              <div className="mt-3 flex items-center gap-1.5 text-xs text-civic-green font-semibold">
+              <div className="mt-3 flex items-center gap-1.5 text-xs text-lime-400 font-semibold">
                 <Star className="w-3 h-3" />
                 <span>{w.points || 0} points earned</span>
               </div>

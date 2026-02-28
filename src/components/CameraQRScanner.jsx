@@ -99,11 +99,11 @@ export default function CameraQRScanner({ onClose, onScan }) {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="glass-card p-6 mb-6 border-2 border-civic-blue/50"
+      className="glass-card p-6 mb-6 border-2 border-civic-green/30"
     >
       <div className="flex items-center justify-between mb-4">
         <h2 className="section-title flex items-center gap-2">
-          <Camera className="w-5 h-5 text-civic-blue animate-pulse" /> Live QR Scanner
+          <Camera className="w-5 h-5 text-civic-green animate-pulse" /> Live QR Scanner
         </h2>
         <button
           onClick={onClose}
@@ -144,7 +144,7 @@ export default function CameraQRScanner({ onClose, onScan }) {
             />
             {cameraActive && !result && (
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-48 h-48 border-2 border-civic-blue rounded-2xl animate-pulse shadow-lg shadow-civic-blue/50" />
+                <div className="w-48 h-48 border-2 border-civic-green rounded-2xl animate-pulse shadow-lg shadow-civic-green/50" />
               </div>
             )}
           </div>
@@ -153,27 +153,26 @@ export default function CameraQRScanner({ onClose, onScan }) {
             {scanning
               ? '🔍 Scanning...'
               : result
-              ? result.valid
-                ? '✓ QR Code Valid!'
-                : '✗ QR Code Invalid'
-              : 'Point camera at QR code on the smart bin'}
+                ? result.valid
+                  ? '✓ QR Code Valid!'
+                  : '✗ QR Code Invalid'
+                : 'Point camera at QR code on the smart bin'}
           </p>
 
           {result && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`p-4 rounded-xl border ${
-                result.valid
-                  ? 'bg-civic-blue/10 border-civic-blue/30'
-                  : 'bg-alert-red/10 border-alert-red/30'
-              }`}
+              className={`p-4 rounded-xl border ${result.valid
+                ? 'bg-civic-green/10 border-civic-green/30'
+                : 'bg-alert-red/10 border-alert-red/30'
+                }`}
             >
               {result.valid ? (
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-civic-blue flex-shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-5 h-5 text-civic-green flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-civic-blue">✓ Valid Bin Detected</p>
+                    <p className="font-semibold text-civic-green">✓ Valid Bin Detected</p>
                     <p className="text-sm text-gray-700 dark:text-gray-300 mt-1">
                       {result.bin.location}
                     </p>
@@ -197,7 +196,7 @@ export default function CameraQRScanner({ onClose, onScan }) {
             onClick={() => {
               setResult(null);
             }}
-            className="w-full mt-4 py-2 rounded-xl border border-civic-blue/30 text-civic-blue font-medium hover:bg-civic-blue/10 transition-colors text-sm"
+            className="w-full mt-4 py-2 rounded-xl border border-civic-green/30 text-civic-green font-medium hover:bg-civic-green/10 transition-colors text-sm"
           >
             Scan Another
           </button>

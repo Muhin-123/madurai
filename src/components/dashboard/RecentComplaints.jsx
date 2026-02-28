@@ -8,7 +8,7 @@ import { format } from 'date-fns';
 
 const STATUS_BADGE = {
   Pending: 'badge-amber',
-  'In Progress': 'badge-blue',
+  'In Progress': 'badge-amber',
   Resolved: 'badge-green',
 };
 const PRIORITY_BADGE = { High: 'badge-red', Medium: 'badge-amber', Low: 'badge-green' };
@@ -69,7 +69,7 @@ export default function RecentComplaints() {
                   transition={{ delay: i * 0.05 }}
                   className="hover:bg-white/20 dark:hover:bg-white/5 transition-colors"
                 >
-                  <td className="px-5 py-3 text-xs font-mono text-civic-blue dark:text-civic-green">{c.id.slice(0, 8)}</td>
+                  <td className="px-5 py-3 text-xs font-mono text-civic-green dark:text-civic-green">{c.id.slice(0, 8)}</td>
                   <td className="px-5 py-3 text-sm text-gray-700 dark:text-gray-300 font-medium">{c.type || 'General'}</td>
                   <td className="px-5 py-3">
                     <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">

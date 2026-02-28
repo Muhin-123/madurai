@@ -5,7 +5,7 @@ import { useWards } from '../../hooks/useFirebaseData';
 import { SkeletonRow } from '../ui/SkeletonLoader';
 import EmptyState from '../ui/EmptyState';
 
-const CONFETTI_COLORS = ['#FF8C00', '#FFD700', '#FFED4E', '#E53935', '#E67E22'];
+const CONFETTI_COLORS = ['#22C55E', '#A3E635', '#15803D', '#E2E8F0'];
 
 function Confetti({ active }) {
   if (!active) return null;
@@ -31,17 +31,17 @@ function Confetti({ active }) {
 
 function RankBadge({ rank }) {
   if (rank === 1) return (
-    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center shadow-lg">
+    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-lime-400 to-green-500 shadow-lime-500/50 flex items-center justify-center shadow-lg">
       <Trophy className="w-5 h-5 text-white" />
     </div>
   );
   if (rank === 2) return (
-    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-300 to-slate-500 flex items-center justify-center shadow-lg">
+    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-300 to-slate-400 shadow-slate-400/50 flex items-center justify-center shadow-lg">
       <Medal className="w-5 h-5 text-white" />
     </div>
   );
   if (rank === 3) return (
-    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-600 to-orange-800 flex items-center justify-center shadow-lg">
+    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-600 to-green-800 shadow-green-700/50 flex items-center justify-center shadow-lg">
       <Award className="w-5 h-5 text-white" />
     </div>
   );
@@ -60,6 +60,8 @@ export default function WardLeaderboard() {
     const t = setTimeout(() => setShowConfetti(false), 4000);
     return () => clearTimeout(t);
   }, []);
+
+  const HIGHLIGHT_BG = 'bg-lime-500/10 border-lime-500/20';
 
   return (
     <div className="glass-card overflow-hidden">
@@ -88,7 +90,7 @@ export default function WardLeaderboard() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.07 }}
                 className={`flex items-center gap-3 p-3 rounded-xl transition-all hover:bg-white/30 dark:hover:bg-white/5 cursor-pointer
-                  ${ward.rank <= 3 ? 'bg-gradient-to-r from-amber-50/50 to-transparent dark:from-amber-900/10 border border-amber-200/30 dark:border-amber-700/20' : ''}`}
+                  ${ward.rank <= 3 ? HIGHLIGHT_BG : ''}`}
               >
                 <RankBadge rank={ward.rank} />
                 <div className="flex-1 min-w-0">
@@ -103,12 +105,10 @@ export default function WardLeaderboard() {
                       initial={{ width: 0 }}
                       animate={{ width: `${ward.score || 0}%` }}
                       transition={{ duration: 1.2, delay: i * 0.07 + 0.3 }}
-                      className={`h-full rounded-full progress-bar-fill ${
-                        ward.rank === 1 ? 'bg-gradient-to-r from-yellow-400 to-amber-500' :
+                      className={`h-full rounded-full transition-all duration-1000 ${ward.rank === 1 ? 'bg-gradient-to-r from-lime-400 to-green-400 shadow-glow' :
                         ward.rank === 2 ? 'bg-gradient-to-r from-gray-400 to-slate-500' :
-                        ward.rank === 3 ? 'bg-gradient-to-r from-amber-600 to-orange-700' :
-                        'bg-gradient-to-r from-civic-blue to-civic-green'
-                      }`}
+                          ward.rank === 3 ? 'bg-gradient-to-r from-green-500 to-green-700' : 'bg-civic-green/20'
+                        }`}
                     />
                   </div>
                 </div>

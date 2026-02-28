@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Trophy, Medal, Award, TrendingUp, TrendingDown, Minus, Star } from 'lucide-react';
 import { mockWardRankings } from '../data/mockData';
 
-const CONFETTI_COLORS = ['#FF8C00', '#FFD700', '#FFED4E', '#E53935', '#E67E22', '#FF6B6B'];
+const CONFETTI_COLORS = ['#22C55E', '#A3E635', '#15803D', '#E2E8F0'];
 
 function Confetti() {
   return (
@@ -30,9 +30,9 @@ function Confetti() {
 
 function PodiumCard({ ward, pos }) {
   const configs = {
-    1: { height: 'h-32', bg: 'from-yellow-400 to-amber-600', icon: <Trophy className="w-8 h-8 text-white" />, label: '1st', shadow: 'shadow-[0_0_30px_rgba(245,158,11,0.5)]' },
-    2: { height: 'h-24', bg: 'from-gray-300 to-slate-500', icon: <Medal className="w-7 h-7 text-white" />, label: '2nd', shadow: 'shadow-[0_0_20px_rgba(148,163,184,0.4)]' },
-    3: { height: 'h-20', bg: 'from-amber-600 to-orange-800', icon: <Award className="w-6 h-6 text-white" />, label: '3rd', shadow: 'shadow-[0_0_20px_rgba(180,83,9,0.4)]' },
+    1: { height: 'h-32', bg: 'from-lime-400 to-green-500', icon: <Trophy className="w-8 h-8 text-white" />, label: '1st', shadow: 'shadow-lime-500/50' },
+    2: { height: 'h-24', bg: 'from-slate-300 to-slate-400', icon: <Medal className="w-7 h-7 text-white" />, label: '2nd', shadow: 'shadow-slate-400/50' },
+    3: { height: 'h-20', bg: 'from-green-600 to-green-800', icon: <Award className="w-6 h-6 text-white" />, label: '3rd', shadow: 'shadow-green-700/50' },
   };
   const cfg = configs[pos];
   return (
@@ -78,9 +78,9 @@ export default function WardRanking() {
 
       <div className="grid grid-cols-3 gap-4 mb-6">
         {[
-          { label: 'Total Wards', value: 15, color: 'from-civic-blue to-blue-600' },
+          { label: 'Total Wards', value: 15, color: 'from-lime-400 to-green-500' },
           { label: 'Avg Score', value: '85.6', color: 'from-civic-green to-emerald-600' },
-          { label: 'Top Performer', value: 'Anna Nagar', color: 'from-amber-400 to-amber-600', text: true },
+          { label: 'Top Performer', value: 'Anna Nagar', color: 'from-lime-400 to-green-500', text: true },
         ].map(({ label, value, color, text }) => (
           <div key={label} className="glass-card p-4 text-center">
             <div className={`${text ? 'text-lg' : 'text-3xl'} font-black bg-gradient-to-r ${color} bg-clip-text text-transparent mb-1`}>{value}</div>
@@ -89,8 +89,10 @@ export default function WardRanking() {
         ))}
       </div>
 
-      <div className="glass-card p-6 mb-6 relative overflow-hidden">
+      <div className="glass-card bg-gradient-to-br from-[#174C2F] to-[#0F2E1C] p-6 mb-8 relative overflow-hidden">
         {confetti && <Confetti />}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-lime-500/10 rounded-full -mr-16 -mt-16 blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-green-500/10 rounded-full -ml-12 -mb-12 blur-2xl" />
         <h2 className="section-title text-center mb-6">🏆 Top 3 Cleanest Wards</h2>
         <div className="grid grid-cols-3 gap-4 items-end">
           {top3.map((ward, i) => <PodiumCard key={ward.ward} ward={ward} pos={i === 0 ? 2 : i === 1 ? 1 : 3} />)}
@@ -111,10 +113,10 @@ export default function WardRanking() {
               className="flex items-center gap-4 p-4 hover:bg-white/20 dark:hover:bg-white/5 transition-colors"
             >
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 font-black text-lg
-                ${ward.rank === 1 ? 'bg-gradient-to-br from-yellow-400 to-amber-600 text-white shadow-lg' :
-                  ward.rank === 2 ? 'bg-gradient-to-br from-gray-300 to-slate-500 text-white shadow-lg' :
-                  ward.rank === 3 ? 'bg-gradient-to-br from-amber-600 to-orange-800 text-white shadow-lg' :
-                  'bg-white dark:bg-white/10 text-gray-600 dark:text-gray-400 text-base'}`}>
+                ${ward.rank === 1 ? 'bg-gradient-to-br from-lime-400 to-green-500 text-white shadow-lg' :
+                  ward.rank === 2 ? 'bg-gradient-to-br from-slate-300 to-slate-400 text-white shadow-lg' :
+                    ward.rank === 3 ? 'bg-gradient-to-br from-green-600 to-green-800 text-white shadow-lg' :
+                      'bg-white dark:bg-white/10 text-gray-600 dark:text-gray-400 text-base'}`}>
                 {ward.rank <= 3 ? (ward.rank === 1 ? '🥇' : ward.rank === 2 ? '🥈' : '🥉') : `#${ward.rank}`}
               </div>
 
@@ -133,12 +135,10 @@ export default function WardRanking() {
                     initial={{ width: 0 }}
                     animate={{ width: `${ward.score}%` }}
                     transition={{ duration: 1.2, delay: i * 0.07 + 0.3 }}
-                    className={`h-full rounded-full ${
-                      ward.rank === 1 ? 'bg-gradient-to-r from-yellow-400 to-amber-500' :
-                      ward.rank === 2 ? 'bg-gradient-to-r from-gray-400 to-slate-500' :
-                      ward.rank === 3 ? 'bg-gradient-to-r from-amber-600 to-orange-700' :
-                      'bg-gradient-to-r from-civic-blue to-civic-green'
-                    }`}
+                    className={`h-full rounded-full transition-all duration-1000 ${ward.rank === 1 ? 'bg-gradient-to-r from-lime-400 to-green-400 shadow-glow' :
+                      ward.rank === 2 ? 'bg-gradient-to-r from-slate-300 to-slate-400' :
+                        ward.rank === 3 ? 'bg-gradient-to-r from-green-500 to-green-700' : 'bg-civic-green/20'
+                      }`}
                   />
                 </div>
               </div>

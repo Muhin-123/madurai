@@ -7,7 +7,10 @@
   "background_color": "#0B1E33",
   "theme_color": "#0F4C81",
   "orientation": "portrait-primary",
-  "categories": ["government", "utilities"],
+  "categories": [
+    "government",
+    "utilities"
+  ],
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -22,11 +25,6 @@
     {
       "src": "/icons/icon-128x128.png",
       "sizes": "128x128",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/icon-144x144.png",
-      "sizes": "144x144",
       "type": "image/png"
     },
     {
@@ -58,14 +56,24 @@
       "short_name": "Complaint",
       "description": "File a waste complaint",
       "url": "/complaints",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "Smart Bins",
       "short_name": "Bins",
       "description": "Monitor smart bin levels",
       "url": "/smart-bins",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ]
 }

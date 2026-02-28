@@ -90,7 +90,7 @@ export default function QRGenerator() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="glass-card p-6">
           <h2 className="section-title mb-5 flex items-center gap-2">
-            <QrCode className="w-4 h-4 text-civic-blue dark:text-civic-green" /> Generate New Bin QR
+            <QrCode className="w-4 h-4 text-civic-green dark:text-civic-green" /> Generate New Bin QR
           </h2>
           <div className="space-y-4">
             <div>
@@ -116,11 +116,10 @@ export default function QRGenerator() {
                   <button
                     key={t}
                     onClick={() => setForm((f) => ({ ...f, type: t }))}
-                    className={`p-2.5 rounded-xl text-sm font-medium border text-left transition-all ${
-                      form.type === t
-                        ? 'border-civic-blue dark:border-civic-green bg-civic-blue/10 dark:bg-civic-green/10 text-civic-blue dark:text-civic-green'
-                        : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400'
-                    }`}
+                    className={`p-2.5 rounded-xl text-sm font-medium border text-left transition-all ${form.type === t
+                      ? 'border-civic-green dark:border-civic-green bg-civic-green/10 dark:bg-civic-green/10 text-civic-green dark:text-civic-green'
+                      : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400'
+                      }`}
                   >{t}</button>
                 ))}
               </div>
@@ -154,14 +153,24 @@ export default function QRGenerator() {
                   <CheckCircle2 className="w-5 h-5 text-civic-green" />
                   <span className="text-sm font-semibold text-civic-green">Saved to Firestore</span>
                 </div>
-                <div ref={qrRef} className="bg-white p-4 rounded-2xl inline-block mb-4 shadow-lg">
-                  <QRCodeSVG
-                    value={generatedBin.qrPayload}
-                    size={200}
-                    level="H"
-                    includeMargin={false}
-                    fgColor="#FF8C00"
-                  />
+                <div ref={qrRef} className="p-4 bg-green-50 dark:bg-green-900/10 border-2 border-dashed border-green-200 dark:border-green-800/30 rounded-3xl mb-6 relative group">
+                  <div className="absolute inset-0 bg-gradient-to-br from-lime-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl" />
+                  <div className="bg-white p-6 rounded-2xl shadow-xl flex items-center justify-center relative">
+                    <QRCodeSVG
+                      value={generatedBin.qrPayload}
+                      size={220}
+                      level="H"
+                      includeMargin
+                      imageSettings={{
+                        src: "/logo.png",
+                        x: undefined,
+                        y: undefined,
+                        height: 48,
+                        width: 48,
+                        excavate: true,
+                      }}
+                    />
+                  </div>
                 </div>
                 <div className="glass-card p-4 mb-4 text-left space-y-2 text-sm">
                   {[
@@ -215,7 +224,7 @@ export default function QRGenerator() {
             {bins.map((bin) => (
               <div key={bin.id} className="p-4 bg-white/30 dark:bg-white/5 rounded-xl">
                 <div className="flex items-start justify-between mb-2">
-                  <span className="font-mono text-xs font-bold text-civic-blue dark:text-civic-green">{bin.bin_id}</span>
+                  <span className="font-mono text-xs font-bold text-civic-green dark:text-civic-green">{bin.bin_id}</span>
                   <span className="badge-green text-[10px]">{bin.status}</span>
                 </div>
                 <p className="text-sm font-semibold text-gray-800 dark:text-white">{bin.location}</p>

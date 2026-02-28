@@ -18,24 +18,19 @@ function BinMarker({ bin, onClick, selected }) {
   if (!bin.lat || !bin.lng) return null;
   const { x, y } = latLngToXY(bin.lat, bin.lng);
   const isCritical = bin.fill > 80;
-  const isWarning = bin.fill >= 50 && bin.fill <= 80;
-  const color = isCritical ? '#E53935' : isWarning ? '#FFED4E' : '#FFD700';
 
   return (
     <g onClick={() => onClick(bin)} style={{ cursor: 'pointer' }}>
       {isCritical && (
-        <circle cx={x} cy={y} r={18} fill={color} opacity={0.2}>
-          <animate attributeName="r" values="14;22;14" dur="2s" repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0.3;0.1;0.3" dur="2s" repeatCount="indefinite" />
-        </circle>
+        <>
+          <circle cx={x} cy={y} r="18" fill="#22C55E33">
+            <animate attributeName="r" values="8;22" dur="1.5s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="1;0" dur="1.5s" repeatCount="indefinite" />
+          </circle>
+        </>
       )}
-      <circle cx={x} cy={y} r={selected ? 12 : 10} fill={color} stroke="white" strokeWidth={2} />
-      <text x={x} y={y + 4} textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">
-        {bin.fill}%
-      </text>
-      {bin.lid_open && (
-        <text x={x + 12} y={y - 8} fontSize="10">🪣</text>
-      )}
+      <circle cx={x} cy={y} r="10" fill={fillColor(bin.fill)} stroke="white" strokeWidth="2" className="shadow-lg" />
+      <text x={x} y={y + 4} textAnchor="middle" fill="white" fontSize="10" fontWeight="black" className="pointer-events-none">{bin.fill}%</text>
     </g>
   );
 }
@@ -43,8 +38,8 @@ function BinMarker({ bin, onClick, selected }) {
 function InfoPanel({ bin, onClose }) {
   const isCritical = bin.fill > 80;
   const isWarning = bin.fill >= 50 && bin.fill <= 80;
-  const statusColor = isCritical ? 'text-alert-red' : isWarning ? 'text-alert-amber' : 'text-civic-green';
-  const fillColor = isCritical ? 'bg-alert-red' : isWarning ? 'bg-alert-amber' : 'bg-civic-green';
+  const statusColor = isCritical ? 'text-alert-red' : isWarning ? 'text-lime-500' : 'text-green-500';
+  const fillColorClass = isCritical ? 'bg-alert-red' : isWarning ? 'bg-lime-500' : 'bg-green-500';
 
   return (
     <motion.div
@@ -58,7 +53,7 @@ function InfoPanel({ bin, onClose }) {
         <X className="w-4 h-4" />
       </button>
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-civic-blue to-civic-green flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-civic-green to-civic-green flex items-center justify-center">
           <Trash2 className="w-5 h-5 text-white" />
         </div>
         <div>
@@ -128,12 +123,12 @@ export default function SmartBinMap() {
           <h2 className="section-title">Live Smart Bin Map</h2>
           <div className="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-alert-red inline-block" />{critical} critical</span>
-            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-alert-amber inline-block" />{warning} warning</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-lime-500 inline-block" />{warning} warning</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-civic-green inline-block animate-pulse" />Live RTDB</span>
           </div>
         </div>
         <div className="hidden sm:flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-          {[{ color: 'bg-civic-green', label: '<50%' }, { color: 'bg-alert-amber', label: '50–80%' }, { color: 'bg-alert-red', label: '>80%' }].map(({ color, label }) => (
+          {[{ color: 'bg-civic-green', label: '<50%' }, { color: 'bg-lime-500', label: '50–80%' }, { color: 'bg-alert-red', label: '>80%' }].map(({ color, label }) => (
             <span key={label} className="flex items-center gap-1">
               <span className={`w-2.5 h-2.5 rounded-full ${color}`} />{label}
             </span>
@@ -143,7 +138,7 @@ export default function SmartBinMap() {
       <div className="relative" style={{ height: MAP_H }}>
         <svg
           viewBox={`0 0 ${MAP_W} ${MAP_H}`}
-          className="w-full h-full bg-gradient-to-br from-slate-100 to-blue-50 dark:from-navy-800 dark:to-navy-900"
+          className="w-full h-full bg-gradient-to-br from-[#0F2E1C]/5 to-[#174C2F]/5 dark:from-green-900/10 dark:to-green-950/20"
         >
           <defs>
             <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">

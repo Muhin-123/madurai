@@ -28,13 +28,13 @@ export default function CitizenDashboard() {
         <p className="page-subtitle">Your civic dashboard · Making Madurai cleaner together</p>
       </div>
 
-      <div className="glass-card p-5 mb-6 bg-gradient-to-r from-civic-blue/15 to-civic-green/15 border border-civic-blue/30 shadow-lg shadow-civic-blue/10">
+      <div className="glass-card p-5 mb-6 bg-gradient-to-r from-civic-green/15 to-civic-green/15 border border-civic-green/30 shadow-lg shadow-civic-green/10">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Your Points</p>
             <div className="flex items-center gap-2">
               <Star className="w-6 h-6 text-civic-green animate-spin-slow" />
-              <span className="text-4xl font-black bg-gradient-to-r from-civic-blue to-civic-green bg-clip-text text-transparent">
+              <span className="text-4xl font-black bg-gradient-to-r from-civic-green to-civic-green bg-clip-text text-transparent">
                 {userProfile?.points || 0}
               </span>
               <span className="text-sm text-gray-400">pts</span>
@@ -45,7 +45,7 @@ export default function CitizenDashboard() {
           </div>
           <div className="text-right space-y-1">
             <div className="text-sm"><span className="font-bold text-civic-green">{myResolved}</span> <span className="text-gray-400">resolved</span></div>
-            <div className="text-sm"><span className="font-bold text-civic-blue">{myPending}</span> <span className="text-gray-400">pending</span></div>
+            <div className="text-sm"><span className="font-bold text-civic-green">{myPending}</span> <span className="text-gray-400">pending</span></div>
             <div className="text-sm"><span className="font-bold text-civic-green">{listings.length}</span> <span className="text-gray-400">listings</span></div>
           </div>
         </div>
@@ -53,10 +53,10 @@ export default function CitizenDashboard() {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         {[
-          { label: 'My Complaints', value: complaints.length, icon: '📋', link: '/citizen/complaints', color: 'from-civic-blue via-orange-500 to-civic-green' },
-          { label: 'My Listings', value: listings.length, icon: '🌿', link: '/citizen/bio-waste', color: 'from-civic-green to-yellow-400' },
-          { label: 'Critical Bins', value: criticalBins, icon: '🗑️', link: null, color: 'from-alert-red to-orange-600' },
-          { label: 'Points Earned', value: userProfile?.points || 0, icon: '⭐', link: null, color: 'from-civic-green to-yellow-500' },
+          { label: 'My Complaints', value: complaints.length, icon: '📋', link: '/citizen/complaints', color: 'from-green-600 to-green-500' },
+          { label: 'My Listings', value: listings.length, icon: '🌿', link: '/citizen/bio-waste', color: 'from-lime-600 to-lime-500' },
+          { label: 'Critical Bins', value: criticalBins, icon: '🗑️', link: null, color: 'from-red-600 to-red-500' },
+          { label: 'Points Earned', value: userProfile?.points || 0, icon: '⭐', link: null, color: 'from-lime-500 to-green-500' },
         ].map(({ label, value, icon, link, color }) => {
           const card = (
             <div className="glass-card p-4 text-center hover:shadow-glow transition-all">
@@ -80,7 +80,7 @@ export default function CitizenDashboard() {
         <Link to="/citizen/bio-waste" className="btn-secondary flex-1 flex items-center justify-center gap-2">
           <Leaf className="w-4 h-4" /> Sell Waste
         </Link>
-        <button onClick={() => setShowQR(!showQR)} className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold border transition-all ${showQR ? 'bg-civic-blue text-white border-civic-blue' : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400'}`}>
+        <button onClick={() => setShowQR(!showQR)} className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold border transition-all ${showQR ? 'bg-civic-green text-white border-civic-green' : 'border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400'}`}>
           <QrCode className="w-4 h-4" /> Scan QR
         </button>
       </div>
@@ -92,7 +92,7 @@ export default function CitizenDashboard() {
       <div className="glass-card p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="section-title">My Recent Complaints</h2>
-          <Link to="/citizen/complaints" className="text-xs text-civic-blue dark:text-civic-green font-medium hover:underline">View all →</Link>
+          <Link to="/citizen/complaints" className="text-xs text-civic-green dark:text-civic-green font-medium hover:underline">View all →</Link>
         </div>
         {cLoading ? (
           <div className="space-y-3">
@@ -118,12 +118,11 @@ export default function CitizenDashboard() {
                 transition={{ delay: i * 0.05 }}
                 className="flex items-center gap-3 p-3 bg-white/30 dark:bg-white/5 rounded-xl"
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                  c.status === 'Resolved' ? 'bg-civic-green/10' : c.status === 'In Progress' ? 'bg-civic-blue/10' : 'bg-alert-amber/10'
-                }`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${c.status === 'Resolved' ? 'bg-civic-green/10' : c.status === 'In Progress' ? 'bg-civic-green/10' : 'bg-alert-amber/10'
+                  }`}>
                   {c.status === 'Resolved' ? <CheckCircle2 className="w-4 h-4 text-civic-green" /> :
-                   c.status === 'In Progress' ? <Clock className="w-4 h-4 text-civic-blue" /> :
-                   <AlertCircle className="w-4 h-4 text-alert-amber" />}
+                    c.status === 'In Progress' ? <Clock className="w-4 h-4 text-civic-green" /> :
+                      <AlertCircle className="w-4 h-4 text-alert-amber" />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-800 dark:text-white truncate">{c.type}</p>

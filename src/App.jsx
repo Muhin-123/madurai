@@ -5,6 +5,8 @@ import { useAuth } from './context/AuthContext';
 import AppShell from './components/layout/AppShell';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
+import { Toaster } from 'react-hot-toast';
+import { Loader2 } from 'lucide-react';
 
 import Dashboard from './pages/Dashboard';
 import Complaints from './pages/Complaints';
@@ -24,8 +26,24 @@ import CitizenComplaints from './pages/citizen/CitizenComplaints';
 import CitizenBioWaste from './pages/citizen/CitizenBioWaste';
 
 import WorkerDashboard from './pages/worker/WorkerDashboard';
+import Landing from './pages/Landing';
 
-import { Toaster } from 'react-hot-toast';
+// Redirects logged-in users to their dashboard; shows Landing for guests
+function LandingOrDashboard() {
+  const { userProfile, loading } = useAuth();
+  if (loading) {
+    return null;
+  }
+  if (userProfile) {
+    const roleRoute = userProfile.role === 'citizen' ? '/citizen'
+      : userProfile.role === 'worker' ? '/worker'
+        : '/officer';
+    return <Navigate to={roleRoute} replace />;
+  }
+  return <Landing />;
+}
+
+
 
 function AuthRedirect() {
   const { userProfile, loading } = useAuth();
@@ -41,6 +59,7 @@ function AppRoutes() {
 
   return (
     <Routes>
+      <Route path="/" element={<LandingOrDashboard />} />
       <Route path="/login" element={<Login />} />
 
       <Route
@@ -49,8 +68,6 @@ function AppRoutes() {
           <ProtectedRoute>
             <AppShell pathname={location.pathname}>
               <Routes>
-                <Route path="/" element={<AuthRedirect />} />
-
                 {/* ── Officer Routes ── */}
                 <Route
                   path="/officer"
@@ -183,10 +200,10 @@ export default function App() {
             toastOptions={{
               duration: 3500,
               style: {
-                background: 'rgba(15, 76, 129, 0.95)',
+                background: '#2E7D32',
                 color: '#fff',
                 borderRadius: '12px',
-                border: '1px solid rgba(255,255,255,0.1)',
+                border: '1px solid rgba(255,255,255,0.15)',
                 backdropFilter: 'blur(10px)',
                 fontSize: '13px',
               },

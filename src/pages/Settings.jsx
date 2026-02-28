@@ -10,9 +10,9 @@ function ToggleSwitch({ enabled, onChange }) {
   return (
     <button
       onClick={() => onChange(!enabled)}
-      className={`relative w-11 h-6 rounded-full transition-colors duration-200 ${enabled ? 'bg-civic-green' : 'bg-gray-200 dark:bg-white/20'}`}
+      className={`relative w-11 h-6 rounded-full transition-colors ${enabled ? 'bg-civic-green shadow-glow' : 'bg-gray-200 dark:bg-white/10'}`}
     >
-      <span className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform duration-200 ${enabled ? 'translate-x-5' : 'translate-x-0'}`} />
+      <div className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform ${enabled ? 'translate-x-5' : 'translate-x-0'}`} />
     </button>
   );
 }
@@ -21,8 +21,8 @@ function SettingSection({ title, icon: Icon, children }) {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-5 mb-4">
       <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10">
-        <div className="w-8 h-8 rounded-lg bg-civic-blue/10 dark:bg-civic-green/10 flex items-center justify-center">
-          <Icon className="w-4 h-4 text-civic-blue dark:text-civic-green" />
+        <div className="w-8 h-8 rounded-lg bg-civic-green/10 flex items-center justify-center">
+          <Icon className="w-4 h-4 text-civic-green" />
         </div>
         <h2 className="font-semibold text-gray-800 dark:text-white text-sm">{title}</h2>
       </div>
@@ -97,7 +97,7 @@ export default function Settings() {
               label="Language"
               desc="Interface language"
               right={
-                <select className="text-sm bg-transparent text-civic-blue dark:text-civic-green font-medium border-none outline-none cursor-pointer"
+                <select className="text-sm bg-transparent text-civic-green dark:text-civic-green font-medium border-none outline-none cursor-pointer"
                   value={settings.language} onChange={e => setSettings(s => ({ ...s, language: e.target.value }))}>
                   <option>English</option>
                   <option>Tamil</option>
@@ -113,7 +113,7 @@ export default function Settings() {
               label="Session Timeout"
               desc="Auto logout after inactivity"
               right={
-                <select className="text-sm bg-transparent text-civic-blue dark:text-civic-green font-medium border-none outline-none cursor-pointer">
+                <select className="text-sm bg-transparent text-civic-green dark:text-civic-green font-medium border-none outline-none cursor-pointer">
                   <option>30 min</option>
                   <option>1 hour</option>
                   <option>4 hours</option>
@@ -132,7 +132,7 @@ export default function Settings() {
               label="Data Retention"
               desc="How long to keep complaint data"
               right={
-                <select className="text-sm bg-transparent text-civic-blue dark:text-civic-green font-medium border-none outline-none cursor-pointer"
+                <select className="text-sm bg-transparent text-civic-green dark:text-civic-green font-medium border-none outline-none cursor-pointer"
                   value={settings.dataRetention} onChange={e => setSettings(s => ({ ...s, dataRetention: e.target.value }))}>
                   <option>30 days</option>
                   <option>90 days</option>
@@ -145,7 +145,7 @@ export default function Settings() {
 
           <SettingSection title="PWA & Mobile" icon={Smartphone}>
             <SettingRow label="Install App" desc="Add to home screen as PWA" right={
-              <button className="text-xs px-3 py-1.5 rounded-lg bg-civic-blue/10 text-civic-blue dark:bg-civic-green/10 dark:text-civic-green font-medium">
+              <button className="text-xs px-3 py-1.5 rounded-lg bg-civic-green/10 text-civic-green dark:bg-civic-green/10 dark:text-civic-green font-medium">
                 Install
               </button>
             } />
@@ -159,7 +159,7 @@ export default function Settings() {
 
           <div className="glass-card p-5">
             <h2 className="font-semibold text-gray-800 dark:text-white text-sm mb-3 flex items-center gap-2">
-              <Globe className="w-4 h-4 text-civic-blue dark:text-civic-green" /> System Information
+              <Globe className="w-4 h-4 text-civic-green dark:text-civic-green" /> System Information
             </h2>
             {[
               { label: 'City', value: 'Madurai, Tamil Nadu' },

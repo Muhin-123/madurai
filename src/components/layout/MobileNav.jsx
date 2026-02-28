@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { LayoutDashboard, MessageSquareWarning, Trash2, Leaf, Trophy } from 'lucide-react';
 
 const mobileNavItems = [
@@ -20,16 +20,22 @@ export default function MobileNav({ pathname }) {
             <NavLink key={path} to={path} className="flex flex-col items-center flex-1">
               <motion.div
                 whileTap={{ scale: 0.85 }}
-                className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-xl transition-all
-                  ${isActive ? 'text-civic-blue dark:text-civic-green' : 'text-gray-400 dark:text-gray-500'}`}
+                className={`relative flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl transition-all
+                  ${isActive ? 'text-lime-400' : 'text-gray-400'}`}
               >
-                <div className={`p-1.5 rounded-lg ${isActive ? 'bg-civic-blue/10 dark:bg-civic-green/10' : ''}`}>
-                  <Icon className="w-5 h-5" />
+                <AnimatePresence mode="wait">
+                  {isActive && (
+                    <motion.div
+                      layoutId="active-mobile-tab"
+                      className="absolute inset-0 bg-lime-500/10 rounded-xl"
+                      transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
+                    />
+                  )}
+                </AnimatePresence>
+                <div className="relative z-10"> {/* Added relative z-10 to keep icon above background */}
+                  <Icon className={`w-6 h-6 ${isActive ? 'fill-lime-500/10' : ''}`} />
                 </div>
-                <span className="text-[10px] font-medium">{label}</span>
-                {isActive && (
-                  <motion.div layoutId="mobile-indicator" className="w-1 h-1 rounded-full bg-civic-blue dark:bg-civic-green" />
-                )}
+                <span className="relative z-10 text-[10px] font-medium">{label}</span> {/* Added relative z-10 */}
               </motion.div>
             </NavLink>
           );

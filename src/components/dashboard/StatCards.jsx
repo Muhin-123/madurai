@@ -29,12 +29,12 @@ function useCountUp(target, duration = 1800, delay = 0) {
 }
 
 const CARDS = [
-  { key: 'complaintsToday', label: 'Complaints Today', icon: MessageSquareWarning, color: 'from-civic-blue to-blue-600' },
-  { key: 'pendingComplaints', label: 'Pending', icon: Clock, color: 'from-alert-amber to-orange-500' },
-  { key: 'resolvedToday', label: 'Resolved Today', icon: CheckCircle2, color: 'from-civic-green to-emerald-600' },
-  { key: 'criticalBins', label: 'Critical Bins >80%', icon: Trash2, color: 'from-alert-red to-red-600' },
-  { key: 'toiletComplaints', label: 'Toilet Complaints', icon: Toilet, color: 'from-alert-purple to-purple-600' },
-  { key: 'bioWasteTraded', label: 'Bio-Waste Traded (kg)', icon: Leaf, color: 'from-civic-green to-teal-600' },
+  { key: 'complaintsToday', label: 'Complaints Today', icon: MessageSquareWarning, color: 'from-green-600 to-green-500' },
+  { key: 'pendingComplaints', label: 'Pending', icon: Clock, color: 'from-amber-500 to-amber-600' },
+  { key: 'resolvedToday', label: 'Resolved Today', icon: CheckCircle2, color: 'from-civic-green to-lime-500' },
+  { key: 'criticalBins', label: 'Critical Bins >80%', icon: Trash2, color: 'from-red-600 to-red-500' },
+  { key: 'toiletComplaints', label: 'Toilet Complaints', icon: Toilet, color: 'from-green-500 to-green-700' },
+  { key: 'bioWasteTraded', label: 'Bio-Waste Traded (kg)', icon: Leaf, color: 'from-lime-500 to-green-600' },
 ];
 
 function StatCard({ card, value, index }) {

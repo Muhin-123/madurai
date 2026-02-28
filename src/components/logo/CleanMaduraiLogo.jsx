@@ -4,15 +4,15 @@ export default function CleanMaduraiLogo({ size = 44, showText = true, className
   if (useImage) {
     return (
       <div className={`flex items-center gap-3 ${className}`}>
-        <img 
-          src={logoImage} 
-          alt="Clean Madurai Logo" 
-          className="rounded-lg object-cover"
+        <img
+          src={logoImage}
+          alt="Clean Madurai Logo"
+          className="rounded-lg object-cover brightness-125"
           style={{ width: size, height: size }}
         />
         {showText && (
           <div>
-            <h1 className="text-sm font-black tracking-wider bg-gradient-to-r from-civic-blue to-civic-green bg-clip-text text-transparent leading-tight">
+            <h1 className="text-sm font-black tracking-wider bg-gradient-to-r from-civic-green to-civic-green bg-clip-text text-transparent leading-tight">
               CLEAN MADURAI
             </h1>
             <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight tracking-wide">
@@ -35,12 +35,12 @@ export default function CleanMaduraiLogo({ size = 44, showText = true, className
       >
         <defs>
           <linearGradient id="logoBlue" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FFA500" />
-            <stop offset="100%" stopColor="#E67E22" />
+            <stop offset="0%" stopColor="#60A5FA" />
+            <stop offset="100%" stopColor="#1D4ED8" />
           </linearGradient>
-          <linearGradient id="logoGreen" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FFED4E" />
-            <stop offset="100%" stopColor="#FFD700" />
+          <linearGradient id="logoGradient" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#22C55E" />
+            <stop offset="100%" stopColor="#A3E635" />
           </linearGradient>
           <filter id="glow">
             <feGaussianBlur stdDeviation="0.8" result="blur" />
@@ -74,7 +74,7 @@ export default function CleanMaduraiLogo({ size = 44, showText = true, className
         <rect x="28.5" y="14.5" width="1" height="2" rx="0.2" fill="rgba(255,255,255,0.25)" />
 
         {/* Tier 4 */}
-        <rect x="11" y="17" width="22" height="3" rx="0.4" fill="#FF8C00" />
+        <rect x="11" y="17" width="22" height="3" rx="0.4" fill="#3B82F6" />
         <rect x="12.5" y="17.5" width="1.5" height="2" rx="0.2" fill="rgba(255,255,255,0.2)" />
         <rect x="16" y="17.5" width="1.5" height="2" rx="0.2" fill="rgba(255,255,255,0.2)" />
         <rect x="21" y="17.5" width="1.5" height="2" rx="0.2" fill="rgba(255,255,255,0.2)" />
@@ -87,8 +87,8 @@ export default function CleanMaduraiLogo({ size = 44, showText = true, className
         <rect x="20" y="21" width="4" height="4" rx="0.8" fill="rgba(255,255,255,0.12)" />
 
         {/* Step platform */}
-        <rect x="7" y="25" width="30" height="2" rx="0.5" fill="#E67E22" />
-        <rect x="5" y="27" width="34" height="1.5" rx="0.5" fill="#E67E22" />
+        <rect x="7" y="25" width="30" height="2" rx="0.5" fill="#1D4ED8" />
+        <rect x="5" y="27" width="34" height="1.5" rx="0.5" fill="#1D4ED8" />
 
         {/* ── Eco leaf / green base ── */}
         <path
@@ -114,14 +114,14 @@ export default function CleanMaduraiLogo({ size = 44, showText = true, className
         />
 
         {/* Recycling dots at leaf tips */}
-        <circle cx="14.5" cy="32" r="1" fill="#FFED4E" />
-        <circle cx="29.5" cy="32" r="1" fill="#FFED4E" />
-        <circle cx="22" cy="36.5" r="1" fill="#FFD700" />
+        <circle cx="14.5" cy="32" r="1" fill="#34D399" />
+        <circle cx="29.5" cy="32" r="1" fill="#34D399" />
+        <circle cx="22" cy="36.5" r="1" fill="#10B981" />
       </svg>
 
       {showText && (
         <div>
-          <h1 className="text-sm font-black tracking-wider bg-gradient-to-r from-civic-blue to-civic-green bg-clip-text text-transparent leading-tight">
+          <h1 className="text-sm font-black tracking-wider bg-gradient-to-r from-civic-green to-civic-green bg-clip-text text-transparent leading-tight">
             CLEAN MADURAI
           </h1>
           <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-tight tracking-wide">

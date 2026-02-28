@@ -38,9 +38,9 @@ const WORKER_NAV = [
 const NAV_BY_ROLE = { officer: OFFICER_NAV, citizen: CITIZEN_NAV, worker: WORKER_NAV };
 
 const ROLE_BADGE = {
-  officer: { label: '🏛 Officer', color: 'bg-civic-blue/10 text-civic-blue dark:text-civic-green dark:bg-civic-green/10' },
+  officer: { label: '🏛 Officer', color: 'bg-civic-green/10 text-civic-green dark:text-civic-green dark:bg-civic-green/10' },
   citizen: { label: '👤 Citizen', color: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400' },
-  worker: { label: '🔧 Worker', color: 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400' },
+  worker: { label: '🔧 Worker', color: 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400' },
 };
 
 export default function Sidebar() {
@@ -88,7 +88,7 @@ export default function Sidebar() {
         {userProfile && (
           <div className="px-4 py-3 border-b border-white/10">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-civic-blue to-civic-green flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-civic-green to-civic-green flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                 {(userProfile.name || 'U').charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0">
@@ -117,22 +117,21 @@ export default function Sidebar() {
                   whileTap={{ scale: 0.98 }}
                   className={`sidebar-nav-item flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group
                     ${isActive
-                      ? 'active bg-gradient-to-r from-civic-blue/15 to-civic-green/10 text-civic-blue dark:text-civic-green font-semibold'
-                      : 'text-gray-600 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-white/5 hover:text-civic-blue dark:hover:text-white'
+                      ? 'active bg-gradient-to-r from-civic-green/15 to-civic-green/10 text-civic-green dark:text-civic-green font-semibold'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-white/30 dark:hover:bg-white/5 hover:text-civic-green dark:hover:text-white'
                     }`}
                 >
-                  <div className={`p-1.5 rounded-lg transition-all duration-200 ${
-                    isActive
-                      ? 'bg-gradient-to-br from-civic-blue to-civic-green text-white shadow-glow'
-                      : 'bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-400 group-hover:bg-civic-blue/10 group-hover:text-civic-blue dark:group-hover:text-white'
-                  }`}>
+                  <div className={`p-1.5 rounded-lg transition-all duration-200 ${isActive
+                    ? 'bg-gradient-to-br from-civic-green to-civic-green text-white shadow-glow'
+                    : 'bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-gray-400 group-hover:bg-civic-green/10 group-hover:text-civic-green dark:group-hover:text-white'
+                    }`}>
                     <Icon className="w-4 h-4" />
                   </div>
                   <span className="text-sm">{label}</span>
                   {isActive && (
                     <motion.div
                       layoutId="active-dot"
-                      className="ml-auto w-1.5 h-1.5 rounded-full bg-civic-blue dark:bg-civic-green"
+                      className="ml-auto w-1.5 h-1.5 rounded-full bg-civic-green dark:bg-civic-green"
                     />
                   )}
                 </motion.div>
@@ -150,7 +149,7 @@ export default function Sidebar() {
             <div className="space-y-1">
               <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
                 <span>Bins Online</span>
-                <span className="font-semibold text-civic-blue dark:text-civic-green">
+                <span className="font-semibold text-civic-green dark:text-civic-green">
                   {onlineBins > 0 ? `${onlineBins}` : '—'}
                 </span>
               </div>
