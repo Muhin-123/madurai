@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, Loader2, AlertCircle, LogIn, UserPlus } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -21,30 +21,60 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  if (userProfile) {
-    return <Navigate to="/" replace />;
-  }
-  const [form, setForm] = useState({ email: '', password: '', name: '', role: 'citizen' });
-  const [showPass, setShowPass] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  // Fixed: Use useEffect for redirection instead of early return to avoid hook sequence violation
+  useEffect(() => {
+    if (userProfile) {
+      const role = userProfile.role || 'citizen';
+      const target = role === 'citizen' ? '/dashboard/citizen' : role === 'worker' ? '/dashboard/worker' : '/dashboard/officer';
+      navigate(target, { replace: true });
+    }
+  }, [userProfile, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      // Mock login process since Firebase is not fully configured
-      setTimeout(() => {
-        let assignedRole = mode === 'register' ? form.role : 'officer'; // default to officer if just logging in as test
-        const targetRoute = assignedRole === 'citizen' ? '/citizen' : assignedRole === 'worker' ? '/worker' : '/officer';
-        navigate(targetRoute, { replace: true });
-        setLoading(false);
-      }, 500);
+      let cred;
+      if (mode === 'login') {
+        cred = await login(form.email, form.password);
+      } else {
+        if (!form.name.trim()) throw new Error('Name is required');
+        cred = await register(form.email, form.password, form.name.trim(), form.role);
+      }
+
+      // After login/register, fetch actual role from Firestore
+      let assignedRole = mode === 'register' ? form.role : 'citizen';
+      try {
+        const userDoc = await getDoc(doc(db, 'users', cred.user.uid));
+        if (userDoc.exists()) {
+          assignedRole = userDoc.data().role || assignedRole;
+        }
+      } catch (fsErr) {
+        console.warn('Firestore fetch error, using fallback role:', fsErr);
+      }
+
+      // Correct dashboard routes
+      const targetRoute =
+        assignedRole === 'citizen'
+          ? '/dashboard/citizen'
+          : assignedRole === 'worker'
+            ? '/dashboard/worker'
+            : '/dashboard/officer';
+
+      navigate(targetRoute, { replace: true });
 
     } catch (err) {
-      setError('Authentication failed. Please try again.');
-      toast.error('Authentication failed. Please try again.');
+      const msgs = {
+        'auth/invalid-credential': 'Invalid email or password.',
+        'auth/user-not-found': 'No account found with this email.',
+        'auth/wrong-password': 'Incorrect password.',
+        'auth/email-already-in-use': 'Email already registered.',
+        'auth/weak-password': 'Password must be at least 6 characters.',
+        'auth/invalid-email': 'Invalid email address.',
+      };
+      setError(msgs[err.code] || err.message || 'Authentication failed.');
+      toast.error(msgs[err.code] || err.message || 'Authentication failed.');
       setLoading(false);
     }
   };

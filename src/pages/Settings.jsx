@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion } from 'framer-motion'; // Kept motion import as it is used in motion.div
 import {
   Bell, Moon, Sun, Globe, Shield, Database,
   Smartphone, Save, RefreshCw, CheckCircle2,

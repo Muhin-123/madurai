@@ -1,223 +1,105 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Menu, Bell, Sun, Moon, ChevronDown, LogOut,
-  User, Cloud, Wind, Droplets, CheckCheck, Settings, Star,
+  Menu, Bell, ChevronDown, User, Settings,
+  LogOut, Star, Shield, BadgeCheck
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useAuth } from '../../context/AuthContext';
-import { useNotifications } from '../../hooks/useFirebaseData';
-import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
 
-const WEATHER = { temp: 32, humidity: 68, wind: 14, condition: 'Partly Cloudy' };
-
-const ROLE_LABELS = {
-  officer: '🏛 Officer',
-  citizen: '👤 Citizen',
-  worker: '🔧 Worker',
+const ROLE_BADGE = {
+  officer: { label: 'Officer', color: 'bg-[#2D6A4F]/20 text-[#2D6A4F]', icon: Shield },
+  citizen: { label: 'Citizen', color: 'bg-blue-50 text-blue-600', icon: BadgeCheck },
+  worker: { label: 'Worker', color: 'bg-amber-50 text-amber-600', icon: Shield },
 };
 
-export default function Topbar({ pageName }) {
-  const { darkMode, toggleDarkMode, toggleSidebar } = useApp();
+export default function Topbar() {
+  const { toggleSidebar } = useApp();
   const { userProfile, logout } = useAuth();
+  const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
 
-  const { notifications, unreadCount, markAllRead } = useNotifications(
-    userProfile?.uid,
-    userProfile?.role
-  );
-
-  const [time, setTime] = useState(new Date());
-  const [showNotif, setShowNotif] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
-  const notifRef = useRef(null);
-  const profileRef = useRef(null);
-
-  useEffect(() => {
-    const t = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (notifRef.current && !notifRef.current.contains(e.target)) setShowNotif(false);
-      if (profileRef.current && !profileRef.current.contains(e.target)) setShowProfile(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  const handleSignOut = async () => {
-    try {
-      await logout();
-      navigate('/login');
-      toast.success('Signed out successfully');
-    } catch {
-      toast.error('Sign out failed');
-    }
-  };
-
-  const notifTypeColors = { alert: 'bg-alert-red', info: 'bg-civic-green', success: 'bg-civic-green' };
-  const userName = userProfile?.name || 'User';
-  const userRole = userProfile?.role || 'citizen';
+  const role = userProfile?.role || 'citizen';
+  const badge = ROLE_BADGE[role];
+  const firstName = userProfile?.name?.split(' ')[0] || 'User';
 
   return (
-    <header className="sticky top-0 z-20 h-16 glass-card rounded-none border-x-0 border-t-0 flex items-center justify-between px-4 lg:px-6">
-      <div className="flex items-center gap-3">
+    <header className="h-20 flex items-center justify-between px-6 lg:px-10 sticky top-0 z-30">
+      <div className="flex items-center gap-4">
         <button
           onClick={toggleSidebar}
-          className="p-2 rounded-xl hover:bg-civic-green/10 text-gray-500 dark:text-gray-400 hover:text-civic-green dark:hover:text-white transition-all"
+          className="p-2.5 rounded-2xl bg-white border border-[#B7E4C7]/30 text-[#1B4332] shadow-soft lg:hidden"
         >
-          <Menu className="w-5 h-5" />
+          <Menu size={20} />
         </button>
-        <div className="hidden sm:block">
-          <h2 className="text-base font-semibold text-gray-800 dark:text-white">{pageName}</h2>
-          <p className="text-xs text-gray-400 dark:text-gray-500">{format(time, 'EEEE, dd MMMM yyyy')}</p>
+        <div>
+          <h2 className="text-xl font-black text-[#1B4332] tracking-tight">Welcome, {firstName}</h2>
+          <p className="text-[10px] font-bold text-[#2D6A4F]/50 uppercase tracking-widest">Madurai Civic Intelligence</p>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 lg:gap-3">
-        <div className="hidden md:flex items-center gap-3 px-3 py-2 glass-card rounded-xl text-xs text-gray-600 dark:text-gray-300">
-          <div className="flex items-center gap-1.5">
-            <Cloud className="w-3.5 h-3.5 text-civic-green dark:text-civic-green" />
-            <span className="font-semibold">{WEATHER.temp}°C</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Droplets className="w-3 h-3 text-green-400" />
-            <span>{WEATHER.humidity}%</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Wind className="w-3 h-3 text-gray-400" />
-            <span>{WEATHER.wind} km/h</span>
-          </div>
-          <span className="text-gray-400">Madurai</span>
-        </div>
-
-        <div className="hidden sm:flex items-center gap-1 px-3 py-2 glass-card rounded-xl text-xs font-mono text-civic-green dark:text-civic-green font-semibold">
-          {format(time, 'HH:mm:ss')}
-        </div>
-
-        {userProfile?.role === 'citizen' && (
-          <div className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-xl bg-civic-green/10 text-civic-green text-xs font-semibold">
-            <Star className="w-3.5 h-3.5" />
-            <span>{userProfile.points || 0} pts</span>
+      <div className="flex items-center gap-3 md:gap-6">
+        {/* Points for Citizen */}
+        {role === 'citizen' && (
+          <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-2xl bg-[#B7E4C7]/20 border border-[#B7E4C7]/30">
+            <Star size={14} className="text-amber-500 fill-amber-500" />
+            <span className="text-sm font-black text-[#1B4332]">{userProfile?.points || 0} pts</span>
           </div>
         )}
 
-        <button
-          onClick={toggleDarkMode}
-          className="p-2 rounded-xl hover:bg-civic-green/10 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 transition-all"
-        >
-          <motion.div
-            initial={false}
-            animate={{ rotate: darkMode ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {darkMode ? <Sun className="w-5 h-5 text-lime-400" /> : <Moon className="w-5 h-5" />}
-          </motion.div>
-        </button>
-
-        <div ref={notifRef} className="relative">
-          <button
-            onClick={() => { setShowNotif(!showNotif); setShowProfile(false); }}
-            className="relative p-2 rounded-xl hover:bg-civic-green/10 text-gray-500 dark:text-gray-400 hover:text-civic-green dark:hover:text-white transition-all"
-          >
-            <Bell className="w-5 h-5" />
-            {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-alert-red text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
-                {unreadCount}
-              </span>
-            )}
-          </button>
-
-          <AnimatePresence>
-            {showNotif && (
-              <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-                className="absolute right-0 top-12 w-80 glass-card rounded-2xl shadow-xl overflow-hidden z-50"
-              >
-                <div className="flex items-center justify-between p-4 border-b border-white/10">
-                  <h3 className="font-semibold text-gray-800 dark:text-white text-sm">Notifications</h3>
-                  <button onClick={markAllRead} className="flex items-center gap-1 text-xs text-civic-green dark:text-civic-green hover:underline">
-                    <CheckCheck className="w-3 h-3" /> Mark all read
-                  </button>
-                </div>
-                <div className="max-h-72 overflow-y-auto">
-                  {notifications.length === 0 ? (
-                    <p className="text-xs text-gray-400 text-center py-6">No new notifications</p>
-                  ) : (
-                    notifications.map((n) => (
-                      <div key={n.id} className={`flex items-start gap-3 p-4 hover:bg-white/20 dark:hover:bg-white/5 transition-colors border-b border-white/5 ${!n.read ? 'bg-civic-green/5 dark:bg-civic-green/5' : ''}`}>
-                        <div className={`w-2 h-2 mt-1.5 rounded-full flex-shrink-0 ${notifTypeColors[n.type] || 'bg-gray-400'} ${!n.read ? 'animate-pulse' : 'opacity-30'}`} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-medium leading-tight">{n.message}</p>
-                          <p className="text-[10px] text-gray-400 mt-0.5">{n.time}</p>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+        {/* Role Badge */}
+        <div className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-2xl font-bold text-xs ${badge.color}`}>
+          <badge.icon size={12} />
+          <span>{badge.label}</span>
         </div>
 
-        <div ref={profileRef} className="relative">
+        {/* Notifications */}
+        <button className="p-2.5 rounded-2xl bg-white border border-[#B7E4C7]/30 text-[#1B4332] shadow-soft relative">
+          <Bell size={20} />
+          <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-rose-500 rounded-full border-2 border-white"></span>
+        </button>
+
+        {/* Profile Dropdown */}
+        <div className="relative">
           <button
-            onClick={() => { setShowProfile(!showProfile); setShowNotif(false); }}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-civic-green/10 dark:hover:bg-white/10 transition-all"
+            onClick={() => setShowProfile(!showProfile)}
+            className="flex items-center gap-2 p-1 lg:pl-3 lg:pr-1 rounded-full bg-white border border-[#B7E4C7]/30 shadow-soft hover:shadow-md transition-all"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-civic-green to-civic-green flex items-center justify-center text-white text-xs font-bold">
-              {userName.charAt(0).toUpperCase()}
+            <span className="hidden lg:block text-xs font-bold text-[#1B4332]">{firstName}</span>
+            <div className="w-8 h-8 rounded-full bg-[#1B4332] flex items-center justify-center text-[#B7E4C7] text-xs font-black">
+              {firstName[0].toUpperCase()}
             </div>
-            <div className="hidden sm:block text-left">
-              <p className="text-xs font-semibold text-gray-800 dark:text-white leading-tight">{userName}</p>
-              <p className="text-[10px] text-gray-400 leading-tight">{ROLE_LABELS[userRole] || userRole}</p>
-            </div>
-            <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${showProfile ? 'rotate-180' : ''}`} />
+            <ChevronDown size={14} className={`text-[#2D6A4F] transition-transform ${showProfile ? 'rotate-180' : ''}`} />
           </button>
 
           <AnimatePresence>
             {showProfile && (
               <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-                className="absolute right-0 top-12 w-56 glass-card rounded-2xl shadow-xl overflow-hidden z-50"
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className="absolute right-0 mt-3 w-56 bg-white rounded-[2rem] border border-[#B7E4C7]/30 shadow-2xl p-3 overflow-hidden"
               >
-                <div className="p-4 border-b border-white/10">
-                  <p className="font-semibold text-sm text-gray-800 dark:text-white">{userName}</p>
-                  <p className="text-xs text-gray-400">{userProfile?.email}</p>
-                  <span className="text-[10px] font-medium mt-1.5 inline-flex px-2 py-0.5 rounded-full bg-civic-green/10 text-civic-green dark:bg-civic-green/10 dark:text-civic-green">
-                    {ROLE_LABELS[userRole] || userRole}
-                  </span>
-                  {userRole === 'citizen' && (
-                    <div className="flex items-center gap-1 mt-1 text-xs text-civic-green font-semibold">
-                      <Star className="w-3 h-3" /> {userProfile?.points || 0} points earned
-                    </div>
-                  )}
-                </div>
-                {[
-                  { icon: User, label: 'Profile', action: () => navigate('/settings') },
-                  { icon: Settings, label: 'Settings', action: () => navigate('/settings') },
-                  { icon: LogOut, label: 'Sign Out', danger: true, action: handleSignOut },
-                ].map(({ icon: Icon, label, danger, action }) => (
-                  <button
-                    key={label}
-                    onClick={action}
-                    className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors hover:bg-white/20 dark:hover:bg-white/5
-                      ${danger ? 'text-alert-red' : 'text-gray-700 dark:text-gray-300'}`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    {label}
-                  </button>
-                ))}
+                <button
+                  onClick={() => { setShowProfile(false); navigate('/dashboard/settings'); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-[#1B4332] hover:bg-[#F8FAF5] rounded-xl transition-all"
+                >
+                  <User size={16} /> Profile
+                </button>
+                <button
+                  onClick={() => { setShowProfile(false); navigate('/dashboard/settings'); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-[#1B4332] hover:bg-[#F8FAF5] rounded-xl transition-all"
+                >
+                  <Settings size={16} /> Settings
+                </button>
+                <div className="my-2 h-px bg-[#B7E4C7]/20 mx-3" />
+                <button
+                  onClick={logout}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
+                >
+                  <LogOut size={16} /> Sign Out
+                </button>
               </motion.div>
             )}
           </AnimatePresence>

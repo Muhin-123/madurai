@@ -5,23 +5,25 @@ import { mockWardRankings } from '../data/mockData';
 
 const CONFETTI_COLORS = ['#22C55E', '#A3E635', '#15803D', '#E2E8F0'];
 
+const PARTICLES = Array.from({ length: 24 }, (_, i) => ({
+  left: `${Math.random() * 100}%`,
+  top: '-10px',
+  background: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
+  width: 6 + Math.random() * 8,
+  height: 6 + Math.random() * 8,
+  animationDelay: `${Math.random() * 2}s`,
+  animationDuration: `${2.5 + Math.random() * 2}s`,
+  borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+}));
+
 function Confetti() {
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      {Array.from({ length: 24 }, (_, i) => (
+      {PARTICLES.map((style, i) => (
         <div
           key={i}
           className="confetti-particle"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: '-10px',
-            background: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-            width: 6 + Math.random() * 8,
-            height: 6 + Math.random() * 8,
-            animationDelay: `${Math.random() * 2}s`,
-            animationDuration: `${2.5 + Math.random() * 2}s`,
-            borderRadius: Math.random() > 0.5 ? '50%' : '2px',
-          }}
+          style={style}
         />
       ))}
     </div>

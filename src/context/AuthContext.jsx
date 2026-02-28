@@ -11,19 +11,63 @@ import { doc, onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore';
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  // Temporary mock user for testing without Firebase
-  const [user, setUser] = useState({ uid: 'mock-user', email: 'officer@cleanmadurai.com' });
-  const [userProfile, setUserProfile] = useState({
-    uid: 'mock-user',
-    role: 'officer', // Change this to 'citizen' or 'worker' to test those views
-    name: 'Test Officer',
-    email: 'officer@cleanmadurai.com',
-    points: 100
-  });
-  const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Disabled real Firebase Auth listener temporarily so you can test all pages
+    let profileUnsub = null;
+
+    const authUnsub = onAuthStateChanged(auth, (firebaseUser) => {
+      if (profileUnsub) {
+        profileUnsub();
+        profileUnsub = null;
+      }
+
+      if (firebaseUser) {
+        setUser(firebaseUser);
+        // Try to get profile, but don't hang if it fails or doesn't exist
+        profileUnsub = onSnapshot(
+          doc(db, 'users', firebaseUser.uid),
+          (snap) => {
+            if (snap.exists()) {
+              setUserProfile({ uid: firebaseUser.uid, ...snap.data() });
+            } else {
+              // Default profile if Firestore entry is missing
+              setUserProfile({
+                uid: firebaseUser.uid,
+                role: 'citizen',
+                name: firebaseUser.displayName || 'User',
+                email: firebaseUser.email,
+                points: 0
+              });
+            }
+            setLoading(false);
+          },
+          (error) => {
+            console.error("Firestore sync error:", error);
+            // Fallback: still let them in as citizen if Auth succeeded
+            setUserProfile({
+              uid: firebaseUser.uid,
+              role: 'citizen',
+              name: firebaseUser.displayName || 'User',
+              email: firebaseUser.email,
+              points: 0
+            });
+            setLoading(false);
+          }
+        );
+      } else {
+        setUser(null);
+        setUserProfile(null);
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      authUnsub();
+      if (profileUnsub) profileUnsub();
+    };
   }, []);
 
   const login = (email, password) =>

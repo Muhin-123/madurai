@@ -202,7 +202,7 @@ function ComplaintForm({ onClose }) {
       setTrackId(docRef.id.slice(0, 8).toUpperCase());
       setSubmitted(true);
       toast.success('+5 points earned for filing a complaint!');
-    } catch (err) {
+    } catch {
       toast.error('Failed to submit complaint');
     } finally {
       setSubmitting(false);

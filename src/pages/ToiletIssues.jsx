@@ -10,7 +10,7 @@ function IssueForm({ onClose }) {
   const [form, setForm] = useState({ location: '', issue: '', ward: '', notes: '' });
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
-  const [id] = useState(`TC${String(Date.now()).slice(-4)}`);
+  const [id] = useState(() => `TC${String(Date.now()).slice(-4)}`);
 
   const submit = () => {
     if (!form.location || !form.issue || !form.ward) return;

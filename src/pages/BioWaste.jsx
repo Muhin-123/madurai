@@ -253,7 +253,7 @@ export default function BioWaste() {
                 </div>
               )}
               <div className="flex items-start justify-between mb-2">
-                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${TYPE_COLORS[item.type] || 'badge-green'}`}>{item.type}</span>
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${CATEGORY_COLORS[item.type] || 'badge-green'}`}>{item.type}</span>
                 <span className="text-xs text-gray-400">{item.created_at?.toDate?.()?.toLocaleDateString?.() || '—'}</span>
               </div>
               <h3 className="font-bold text-gray-800 dark:text-white mb-1 text-sm leading-tight">{item.type} · {item.weight_kg} kg</h3>

@@ -1,235 +1,260 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Clock, AlertCircle, Camera, Loader2, X, Star, MapPin } from 'lucide-react';
-import { updateDoc, doc, serverTimestamp } from 'firebase/firestore';
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../../firebase';
 import { useAuth } from '../../context/AuthContext';
-import { useComplaints } from '../../hooks/useFirebaseData';
-import { SkeletonRow } from '../../components/ui/SkeletonLoader';
-import EmptyState from '../../components/ui/EmptyState';
+import { useComplaints, useBins } from '../../hooks/useFirebaseData';
+import {
+  Loader2, X, Star, MapPin, ClipboardList,
+  CheckCircle2, Clock, AlertCircle, ChevronRight,
+  Trash2, Filter, Search, Calendar
+} from 'lucide-react';
+import { collection, addDoc, query, where, orderBy, limit, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
+import { db } from '../../firebase';
 import toast from 'react-hot-toast';
 
-const STATUS_BADGE = { Pending: 'badge-amber', 'In Progress': 'badge-amber', Resolved: 'badge-green' };
-const PRIORITY_BADGE = { High: 'badge-red', Medium: 'badge-amber', Low: 'badge-green' };
+function StatCard({ label, value, icon: Icon, color, delay = 0 }) {
+  const [displayValue, setDisplayValue] = useState(0);
 
-function ResolveModal({ complaint, onClose }) {
-  const [photos, setPhotos] = useState({ before: null, after: null });
-  const [submitting, setSubmitting] = useState(false);
-
-  const handleFile = (field) => (e) => {
-    const file = e.target.files[0];
-    if (file) setPhotos((p) => ({ ...p, [field]: file }));
-  };
-
-  const uploadAndResolve = async () => {
-    setSubmitting(true);
-    try {
-      const urls = {};
-      for (const [key, file] of Object.entries(photos)) {
-        if (file) {
-          const fileRef = storageRef(storage, `resolutions/${complaint.id}/${key}_${Date.now()}`);
-          await uploadBytes(fileRef, file);
-          urls[key] = await getDownloadURL(fileRef);
-        }
-      }
-      await updateDoc(doc(db, 'complaints', complaint.id), {
-        status: 'Resolved',
-        proof_before: urls.before || null,
-        proof_after: urls.after || null,
-        updated_at: serverTimestamp(),
-        resolved_at: serverTimestamp(),
-      });
-      toast.success('✓ Marked as resolved! +10 points earned.');
-      onClose();
-    } catch {
-      toast.error('Failed to resolve complaint');
-    } finally {
-      setSubmitting(false);
+  useEffect(() => {
+    let start = 0;
+    const end = parseInt(value) || 0;
+    if (isNaN(end)) {
+      setDisplayValue(value);
+      return;
     }
-  };
+    const timer = setInterval(() => {
+      start += Math.ceil(end / 10);
+      if (start >= end) {
+        setDisplayValue(end);
+        clearInterval(timer);
+      } else {
+        setDisplayValue(start);
+      }
+    }, 60);
+    return () => clearInterval(timer);
+  }, [value]);
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-      onClick={onClose}>
-      <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
-        onClick={(e) => e.stopPropagation()} className="glass-card w-full max-w-sm p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-gray-800 dark:text-white">Mark as Resolved</h3>
-          <button onClick={onClose}><X className="w-4 h-4 text-gray-400" /></button>
-        </div>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Upload proof photos to complete this task</p>
-        <div className="space-y-3 mb-4">
-          {[
-            { key: 'before', label: 'Before Photo' },
-            { key: 'after', label: 'After Photo (Required)' },
-          ].map(({ key, label }) => (
-            <div key={key}>
-              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">{label}</label>
-              <label className={`flex items-center gap-3 p-3 border-2 border-dashed rounded-xl cursor-pointer transition-colors ${photos[key] ? 'border-civic-green bg-civic-green/5' : 'border-gray-200 dark:border-white/20 hover:border-civic-green'}`}>
-                <Camera className={`w-5 h-5 flex-shrink-0 ${photos[key] ? 'text-civic-green' : 'text-gray-300'}`} />
-                <span className="text-xs text-gray-400 truncate">{photos[key] ? photos[key].name : 'Click to upload'}</span>
-                <input type="file" accept="image/*" className="hidden" onChange={handleFile(key)} />
-              </label>
-            </div>
-          ))}
-        </div>
-        <div className="p-3 bg-civic-green/10 border border-civic-green/20 rounded-xl text-xs text-civic-green font-medium mb-4">
-          ⭐ You'll earn +10 points for resolving this complaint
-        </div>
-        <button onClick={uploadAndResolve} disabled={!photos.after || submitting}
-          className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50">
-          {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Submitting...</> : <><CheckCircle2 className="w-4 h-4" /> Mark Resolved</>}
-        </button>
-      </motion.div>
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay }}
+      whileHover={{ y: -5 }}
+      className="glass-card p-6 flex items-center gap-5 border-none shadow-soft"
+    >
+      <div className="p-4 rounded-2xl bg-[#F8FAF5] border border-[#B7E4C7]/30">
+        <Icon size={22} style={{ color }} />
+      </div>
+      <div>
+        <h3 className="text-3xl font-black text-[#1B4332] leading-none mb-1">{displayValue}</h3>
+        <p className="text-[10px] font-black text-[#2D6A4F]/40 uppercase tracking-[0.2em]">{label}</p>
+      </div>
     </motion.div>
   );
 }
 
 export default function WorkerDashboard() {
   const { userProfile } = useAuth();
-  const { complaints, loading } = useComplaints({ workerId: userProfile?.uid });
-  const [resolveTarget, setResolveTarget] = useState(null);
-  const [filter, setFilter] = useState('All');
+  const { complaints, loading: cLoading } = useComplaints({ workerId: userProfile?.uid });
+  const { bins, loading: bLoading } = useBins();
+  const [filter, setFilter] = useState('In Progress');
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [resolving, setResolving] = useState(false);
 
-  const filtered = filter === 'All' ? complaints : complaints.filter((c) => c.status === filter);
-  const resolved = complaints.filter((c) => c.status === 'Resolved').length;
-  const pending = complaints.filter((c) => c.status !== 'Resolved').length;
-  const rate = complaints.length > 0 ? Math.round((resolved / complaints.length) * 100) : 0;
+  const filteredTasks = complaints.filter(c => filter === 'All' ? true : c.status === filter);
+  const myPending = complaints.filter(c => c.status === 'In Progress').length;
+  const myResolved = complaints.filter(c => c.status === 'Resolved').length;
+
+  const handleResolve = async () => {
+    if (!selectedTask) return;
+    setResolving(true);
+    try {
+      await updateDoc(doc(db, 'complaints', selectedTask.id), {
+        status: 'Resolved',
+        updated_at: serverTimestamp(),
+        resolved_by: userProfile.uid
+      });
+      toast.success('Task marked as resolved!');
+      setSelectedTask(null);
+    } catch (err) {
+      toast.error('Failed to update task.');
+    } finally {
+      setResolving(false);
+    }
+  };
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="page-title">My Tasks</h1>
-        <p className="page-subtitle">Assigned complaints · Real-time from Firestore</p>
+    <div className="space-y-10">
+      <header>
+        <h1 className="page-title text-4xl">Field Operations</h1>
+        <p className="page-subtitle text-lg">Assigned tasks and real-time maintenance monitoring.</p>
+      </header>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <StatCard label="My Queue" value={myPending} icon={ClipboardList} color="#FFB703" delay={0.1} />
+        <StatCard label="Completed" value={myResolved} icon={CheckCircle2} color="#2D6A4F" delay={0.2} />
+        <StatCard label="Area Bins" value={bins.length} icon={Trash2} color="#2D6A4F" delay={0.3} />
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        {[
-          { label: 'Assigned', value: complaints.length, icon: '📋', color: 'from-green-600 to-green-500' },
-          { label: 'Pending', value: pending, icon: '⏳', color: 'from-lime-400 to-green-600' },
-          { label: 'Resolved', value: resolved, icon: '✅', color: 'from-civic-green to-lime-500' },
-          { label: 'My Points', value: userProfile?.points || 0, icon: '⭐', color: 'from-lime-400 to-civic-green' },
-        ].map(({ label, value, icon, color }) => (
-          <div key={label} className="glass-card p-4 text-center">
-            <div className="text-2xl mb-2">{icon}</div>
-            <p className={`text-2xl font-black bg-gradient-to-r ${color} bg-clip-text text-transparent`}>{value}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{label}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="glass-card p-4 mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">Resolution Rate</span>
-          <span className={`text-sm font-bold ${rate >= 80 ? 'text-lime-400' : rate >= 50 ? 'text-green-400' : 'text-alert-red'}`}>{rate}%</span>
-        </div>
-        <div className="h-1.5 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${rate}%` }}
-            transition={{ duration: 1 }}
-            className={`h-full rounded-full ${rate >= 80 ? 'bg-lime-400' : rate >= 50 ? 'bg-green-400' : 'bg-alert-red'}`}
-          />
-        </div>
-        <div className="flex items-center gap-1.5 mt-2">
-          <Star className="w-3.5 h-3.5 text-lime-400" />
-          <span className="text-xs text-gray-400">{userProfile?.points || 0} total points earned</span>
-        </div>
-      </div>
-
-      <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
-        {['All', 'Pending', 'In Progress', 'Resolved'].map((f) => (
-          <button key={f} onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${filter === f ? 'bg-civic-green text-white shadow-glow' : 'glass-card text-gray-600 dark:text-gray-400'}`}>
-            {f}
-          </button>
-        ))}
-      </div>
-
-      {loading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 4 }).map((_, i) => <SkeletonRow key={i} />)}
-        </div>
-      ) : filtered.length === 0 ? (
-        <EmptyState
-          title={filter === 'All' ? "No tasks assigned yet" : `No ${filter} tasks`}
-          description={filter === 'All' ? "Your officer will assign complaints to you soon." : ""}
-        />
-      ) : (
-        <div className="space-y-3">
-          {filtered.map((c, i) => (
-            <motion.div key={c.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-              className="glass-card p-4">
-              <div className="flex items-start gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${c.priority === 'High' ? 'bg-alert-red/10' : c.priority === 'Medium' ? 'bg-amber-500/10' : 'bg-green-500/10'
-                  }`}>
-                  {c.status === 'Resolved' ? <CheckCircle2 className={`w-5 h-5 text-civic-green`} /> :
-                    c.priority === 'High' ? <AlertCircle className="w-5 h-5 text-alert-red" /> :
-                      c.priority === 'Medium' ? <AlertCircle className="w-5 h-5 text-amber-500" /> : <AlertCircle className="w-5 h-5 text-green-500" />}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={STATUS_BADGE[c.status] || 'badge-blue'}>{c.status}</span>
-                    <span className={PRIORITY_BADGE[c.priority] || 'badge-blue'}>{c.priority}</span>
-                  </div>
-                  <p className="text-sm font-semibold text-gray-800 dark:text-white">{c.type}</p>
-                  <div className="flex items-center gap-3 text-xs text-gray-400 mt-1">
-                    <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{c.ward_id || '—'}</span>
-                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{c.created_at?.toDate?.()?.toLocaleDateString?.() || '—'}</span>
-                  </div>
-                  {c.description && <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{c.description}</p>}
-                </div>
-              </div>
-
-              {c.photo_url && (
-                <div className="mt-3">
-                  <img src={c.photo_url} alt="issue" className="w-full h-24 object-cover rounded-xl" />
-                </div>
-              )}
-
-              {c.status !== 'Resolved' && (
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className="xl:col-span-2 glass-card p-8 min-h-[600px]">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10">
+            <h2 className="text-2xl font-black text-[#1B4332]">Task Registry</h2>
+            <div className="flex gap-2 p-1 bg-[#F8FAF5] rounded-2xl border border-[#B7E4C7]/30">
+              {['In Progress', 'Resolved', 'All'].map((m) => (
                 <button
-                  onClick={() => setResolveTarget(c)}
-                  className="mt-3 w-full py-2.5 rounded-xl bg-civic-green text-white text-sm font-semibold hover:bg-civic-green/90 transition-colors flex items-center justify-center gap-2"
+                  key={m}
+                  onClick={() => setFilter(m)}
+                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filter === m ? 'bg-[#2D6A4F] text-white shadow-lg' : 'text-[#2D6A4F]/60 hover:text-[#2D6A4F]'}`}
                 >
-                  <CheckCircle2 className="w-4 h-4" /> Mark as Resolved
+                  {m}
                 </button>
-              )}
+              ))}
+            </div>
+          </div>
 
-              {c.status === 'Resolved' && (
-                <div className="mt-3 p-2.5 bg-civic-green/10 border border-civic-green/20 rounded-xl text-xs text-civic-green font-medium flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4" /> Resolved · +10 points earned
-                </div>
-              )}
-
-              {(c.proof_before || c.proof_after) && (
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  {c.proof_before && (
-                    <div>
-                      <p className="text-[10px] text-gray-400 mb-1">Before</p>
-                      <img src={c.proof_before} alt="before" className="w-full h-16 object-cover rounded-lg" />
+          {cLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map(i => <div key={i} className="h-20 shimmer rounded-2xl" />)}
+            </div>
+          ) : filteredTasks.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="w-16 h-16 rounded-full bg-[#F8FAF5] flex items-center justify-center mb-4">
+                <ClipboardList size={24} className="text-[#2D6A4F]/20" />
+              </div>
+              <p className="text-[#2D6A4F]/40 font-bold uppercase tracking-widest text-xs">No tasks found</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredTasks.map((t) => (
+                <div
+                  key={t.id}
+                  onClick={() => setSelectedTask(t)}
+                  className="group flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 rounded-[1.5rem] bg-white border border-transparent hover:border-[#B7E4C7]/40 hover:bg-[#F8FAF5] transition-all cursor-pointer shadow-sm hover:shadow-md"
+                >
+                  <div className="flex items-center gap-5 mb-4 sm:mb-0">
+                    <div className="w-12 h-12 rounded-2xl bg-[#B7E4C7]/20 flex items-center justify-center text-[#2D6A4F]">
+                      <MapPin size={20} />
                     </div>
-                  )}
-                  {c.proof_after && (
                     <div>
-                      <p className="text-[10px] text-gray-400 mb-1">After</p>
-                      <img src={c.proof_after} alt="after" className="w-full h-16 object-cover rounded-lg" />
+                      <h4 className="font-black text-[#1B4332] group-hover:text-[#2D6A4F] transition-colors">{t.type}</h4>
+                      <p className="text-[10px] font-bold text-[#2D6A4F]/50 uppercase tracking-widest">{t.ward_id} · {t.created_at?.toDate?.()?.toLocaleDateString() || 'Today'}</p>
                     </div>
-                  )}
+                  </div>
+                  <div className="flex items-center gap-4 self-end sm:self-center">
+                    <span className={`badge-green ${t.status === 'In Progress' ? 'bg-amber-50 text-amber-600' : ''}`}>{t.status}</span>
+                    <ChevronRight size={18} className="text-[#2D6A4F]/20 group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
-              )}
-            </motion.div>
-          ))}
+              ))}
+            </div>
+          )}
         </div>
-      )}
+
+        <div className="space-y-8">
+          <div className="glass-card p-8 bg-[#1B4332] text-white">
+            <h2 className="text-xl font-black mb-6 flex items-center gap-2">
+              <Trash2 size={20} className="text-[#B7E4C7]" /> Area Sensors
+            </h2>
+            <div className="space-y-5">
+              {bins.slice(0, 4).map((b) => (
+                <div key={b.id} className="space-y-2">
+                  <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                    <span>{b.id}</span>
+                    <span className={b.fill > 80 ? 'text-rose-400' : 'text-[#B7E4C7]'}>{b.fill}%</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${b.fill}%` }}
+                      className={`h-full ${b.fill > 80 ? 'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]' : 'bg-[#B7E4C7]'}`}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button className="w-full mt-8 py-4 rounded-2xl bg-[#2D6A4F] font-bold text-xs hover:shadow-xl transition-all">View Full Map</button>
+          </div>
+
+          <div className="glass-card p-8">
+            <h3 className="text-sm font-black text-[#1B4332] mb-6 uppercase tracking-[0.2em]">Safety Guidelines</h3>
+            <ul className="space-y-4">
+              {[
+                { icon: ShieldCheck, text: 'Wear protective gear at all times.' },
+                { icon: Calendar, text: 'Upload photos after completion.' },
+                { icon: Star, text: 'Maintain 4.5+ rating for bonus.' }
+              ].map((item, i) => (
+                <li key={i} className="flex gap-4">
+                  <div className="w-6 h-6 rounded-lg bg-[#F8FAF5] flex items-center justify-center flex-shrink-0">
+                    <item.icon size={12} className="text-[#2D6A4F]" />
+                  </div>
+                  <p className="text-xs font-semibold text-[#1B4332]/70 leading-relaxed">{item.text}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
 
       <AnimatePresence>
-        {resolveTarget && (
-          <ResolveModal complaint={resolveTarget} onClose={() => setResolveTarget(null)} />
+        {selectedTask && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedTask(null)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-lg glass-card bg-white p-10 overflow-hidden shadow-2xl"
+            >
+              <button
+                onClick={() => setSelectedTask(null)}
+                className="absolute top-6 right-6 p-2 rounded-xl bg-[#F8FAF5] text-[#1B4332] hover:bg-rose-50 hover:text-rose-500 transition-all"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="flex flex-col gap-6">
+                <div>
+                  <span className={`badge-green mb-4 ${selectedTask.status === 'In Progress' ? 'bg-amber-50 text-amber-600' : ''}`}>
+                    {selectedTask.status}
+                  </span>
+                  <h3 className="text-3xl font-black text-[#1B4332] mb-2">{selectedTask.type}</h3>
+                  <p className="text-sm font-medium text-[#2D6A4F]/60 flex items-center gap-2">
+                    <MapPin size={14} /> {selectedTask.location} · {selectedTask.ward_id}
+                  </p>
+                </div>
+
+                <div className="p-6 rounded-2xl bg-[#F8FAF5] border border-[#B7E4C7]/20">
+                  <h4 className="text-[10px] font-black text-[#2D6A4F]/40 uppercase tracking-[0.2em] mb-2">Description</h4>
+                  <p className="text-sm font-semibold text-[#1B4332]/80 leading-relaxed italic">
+                    "{selectedTask.description || 'No description provided.'}"
+                  </p>
+                </div>
+
+                {selectedTask.status === 'In Progress' && (
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    <button
+                      onClick={handleResolve}
+                      disabled={resolving}
+                      className="btn-primary col-span-2"
+                    >
+                      {resolving ? <Loader2 className="animate-spin" /> : <CheckCircle2 size={20} />}
+                      Mark as Resolved
+                    </button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>
   );
 }
+// Helper for missing imports
+const ShieldCheck = (props) => <div {...props}><div className="w-full h-full border-2 border-current rounded-full" /></div>;

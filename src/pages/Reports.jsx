@@ -60,11 +60,8 @@ export default function Reports() {
           <p className="page-subtitle">Comprehensive data insights · Export ready</p>
         </div>
         <div className="flex items-center gap-2">
-          <div
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${filter === f ? 'bg-civic-green text-white shadow-glow' : 'glass-card text-gray-500 hover:text-gray-700 dark:text-gray-400'
-              }`}
-          >
-            <Calendar className="w-4 h-4 text-civic-green dark:text-civic-green" />
+          <div className="px-4 py-2 rounded-xl text-sm font-medium transition-all bg-civic-green text-white shadow-glow flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
             <span>January 2024</span>
           </div>
         </div>
@@ -111,8 +108,8 @@ export default function Reports() {
       <div className="glass-card p-5">
         <h2 className="section-title mb-4">Download Reports</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {REPORT_TYPES.map(({ label, icon: Icon, desc }, i) => (
-            <motion.button
+          {REPORT_TYPES.map(({ label, icon: ReportIcon, desc }, i) => (
+            <motion.div
               key={label}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -121,16 +118,16 @@ export default function Reports() {
               className="flex flex-col items-start gap-3 p-4 rounded-xl border border-gray-200 dark:border-white/10 hover:border-civic-green dark:hover:border-civic-green hover:bg-civic-green/5 dark:hover:bg-civic-green/5 transition-all text-left"
             >
               <div className="w-10 h-10 rounded-xl bg-civic-green/10 dark:bg-civic-green/10 flex items-center justify-center">
-                <Icon className="w-5 h-5 text-civic-green dark:text-civic-green" />
+                <ReportIcon className="w-5 h-5 text-civic-green" />
               </div>
               <div>
                 <p className="font-semibold text-sm text-gray-800 dark:text-white">{label}</p>
                 <p className="text-xs text-gray-400">{desc}</p>
               </div>
-              <button className="btn-primary flex items-center gap-2">
-                <Download className="w-4 h-4" /> Download Report
+              <button className="btn-primary w-full flex items-center justify-center gap-2 mt-auto">
+                <Download className="w-4 h-4" /> Export
               </button>
-            </motion.button>
+            </motion.div>
           ))}
         </div>
       </div>

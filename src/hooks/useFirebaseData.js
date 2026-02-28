@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { db, rtdb } from '../firebase';
 import {
   collection,
@@ -50,13 +50,16 @@ export function useStats() {
         }));
         setLoading(false);
       },
-      () => setLoading(false)
+      (err) => {
+        console.error('useStats (today) error:', err);
+        setLoading(false);
+      }
     );
 
     const unsubPending = onSnapshot(
       query(collection(db, 'complaints'), where('status', '==', 'Pending')),
       (snap) => setStats((prev) => ({ ...prev, pendingComplaints: snap.size })),
-      () => {}
+      (err) => console.error('useStats (pending) error:', err)
     );
 
     const unsubBio = onSnapshot(
@@ -65,7 +68,7 @@ export function useStats() {
         const total = snap.docs.reduce((sum, d) => sum + (d.data().weight_kg || 0), 0);
         setStats((prev) => ({ ...prev, bioWasteTraded: total }));
       },
-      () => {}
+      (err) => console.error('useStats (bio) error:', err)
     );
 
     const binsRef = ref(rtdb, 'smart_bins');
@@ -76,7 +79,7 @@ export function useStats() {
         const critical = Object.values(data).filter((b) => (b.fill || 0) > 80).length;
         setStats((prev) => ({ ...prev, criticalBins: critical }));
       },
-      () => {}
+      (err) => console.error('useStats (bins) error:', err)
     );
 
     return () => {
@@ -93,11 +96,11 @@ export function useStats() {
 export function useComplaints(filters = {}) {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
-  const filterKey = JSON.stringify(filters);
 
   useEffect(() => {
     const constraints = [orderBy('created_at', 'desc')];
 
+    // Validate filters before building query
     if (filters.status && filters.status !== 'All') {
       constraints.push(where('status', '==', filters.status));
     }
@@ -123,11 +126,14 @@ export function useComplaints(filters = {}) {
         setComplaints(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
         setLoading(false);
       },
-      () => setLoading(false)
+      (err) => {
+        console.error('useComplaints error:', err);
+        setLoading(false);
+      }
     );
 
     return () => unsub();
-  }, [filterKey]);
+  }, [filters.status, filters.ward, filters.citizenId, filters.workerId, filters.limitN, filters.todayOnly]);
 
   return { complaints, loading };
 }
@@ -150,7 +156,10 @@ export function useBins() {
         setBins(arr);
         setLoading(false);
       },
-      () => setLoading(false)
+      (err) => {
+        console.error('useBins error:', err);
+        setLoading(false);
+      }
     );
     return () => unsub();
   }, []);
@@ -161,9 +170,14 @@ export function useBins() {
 export function useBioWaste(filters = {}) {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const filterKey = JSON.stringify(filters);
 
   useEffect(() => {
+    // If sellerId is explicitly requested but missing (e.g., during auth load), skip listener
+    if (filters.hasOwnProperty('sellerId') && !filters.sellerId) {
+      setLoading(false);
+      return;
+    }
+
     const constraints = [orderBy('created_at', 'desc')];
 
     if (filters.type && filters.type !== 'All') {
@@ -175,6 +189,9 @@ export function useBioWaste(filters = {}) {
     if (filters.status) {
       constraints.push(where('status', '==', filters.status));
     }
+    if (filters.limitN) {
+      constraints.push(limit(filters.limitN));
+    }
 
     const unsub = onSnapshot(
       query(collection(db, 'bio_waste_market'), ...constraints),
@@ -182,10 +199,13 @@ export function useBioWaste(filters = {}) {
         setListings(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
         setLoading(false);
       },
-      () => setLoading(false)
+      (err) => {
+        console.error('useBioWaste error:', err);
+        setLoading(false);
+      }
     );
     return () => unsub();
-  }, [filterKey]);
+  }, [filters.type, filters.sellerId, filters.status, filters.limitN]);
 
   return { listings, loading };
 }
@@ -201,7 +221,10 @@ export function useWards() {
         setWards(snap.docs.map((d, i) => ({ id: d.id, rank: i + 1, ...d.data() })));
         setLoading(false);
       },
-      () => setLoading(false)
+      (err) => {
+        console.error('useWards error:', err);
+        setLoading(false);
+      }
     );
     return () => unsub();
   }, []);
@@ -236,7 +259,7 @@ export function useChartData() {
           if (c.created_at) {
             const date = c.created_at.toDate ? c.created_at.toDate() : new Date(c.created_at);
             const dayIdx = Math.floor((Date.now() - date.getTime()) / (1000 * 60 * 60 * 24));
-            if (dayIdx < 7) {
+            if (dayIdx >= 0 && dayIdx < 7) {
               dayFiled[6 - dayIdx]++;
               if (c.status === 'Resolved') dayResolved[6 - dayIdx]++;
             }
@@ -280,21 +303,21 @@ export function useChartData() {
               {
                 label: 'Complaints Filed',
                 data: dayFiled,
-                borderColor: '#0F4C81',
-                backgroundColor: 'rgba(15,76,129,0.1)',
+                borderColor: '#1B4332',
+                backgroundColor: 'rgba(27,67,50,0.1)',
                 fill: true,
                 tension: 0.4,
-                pointBackgroundColor: '#0F4C81',
+                pointBackgroundColor: '#1B4332',
                 pointRadius: 5,
               },
               {
                 label: 'Resolved',
                 data: dayResolved,
-                borderColor: '#00A86B',
-                backgroundColor: 'rgba(0,168,107,0.1)',
+                borderColor: '#2D6A4F',
+                backgroundColor: 'rgba(45,106,79,0.1)',
                 fill: true,
                 tension: 0.4,
-                pointBackgroundColor: '#00A86B',
+                pointBackgroundColor: '#2D6A4F',
                 pointRadius: 5,
               },
             ],
@@ -311,7 +334,10 @@ export function useChartData() {
         });
         setLoading(false);
       },
-      () => setLoading(false)
+      (err) => {
+        console.error('useChartData error:', err);
+        setLoading(false);
+      }
     );
 
     return () => unsub();
@@ -325,11 +351,25 @@ export function useUserProfile(uid) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!uid) { setLoading(false); return; }
+    if (!uid) {
+      setLoading(false);
+      setProfile(null);
+      return;
+    }
     const unsub = onSnapshot(
       query(collection(db, 'users'), where('__name__', '==', uid)),
-      () => {},
-      () => setLoading(false)
+      (snap) => {
+        if (!snap.empty) {
+          setProfile({ uid, ...snap.docs[0].data() });
+        } else {
+          setProfile(null);
+        }
+        setLoading(false);
+      },
+      (err) => {
+        console.error('useUserProfile error:', err);
+        setLoading(false);
+      }
     );
     return () => unsub();
   }, [uid]);
@@ -348,7 +388,10 @@ export function useWorkers() {
         setWorkers(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
         setLoading(false);
       },
-      () => setLoading(false)
+      (err) => {
+        console.error('useWorkers error:', err);
+        setLoading(false);
+      }
     );
     return () => unsub();
   }, []);
@@ -362,11 +405,9 @@ export function useNotifications(uid, role) {
 
   useEffect(() => {
     if (!uid) return;
-    const constraints = [orderBy('created_at', 'desc'), limit(20)];
 
-    if (role !== 'officer') {
-      constraints.push(where('user_id', '==', uid));
-    }
+    // Default system notification for demo if no real ones
+    const constraints = [orderBy('created_at', 'desc'), limit(20)];
 
     const unsub = onSnapshot(
       query(collection(db, 'complaints'), where('status', '==', 'In Progress'), limit(5)),
@@ -375,13 +416,13 @@ export function useNotifications(uid, role) {
           id: d.id,
           message: `Complaint assigned: ${d.data().type || 'Issue'} – ${d.data().ward_id || ''}`,
           type: 'info',
-          time: d.data().updated_at?.toDate?.()?.toLocaleTimeString?.() || '',
+          time: d.data().updated_at?.toDate?.()?.toLocaleTimeString?.() || 'Just now',
           read: false,
         }));
         setNotifications(notifs);
         setUnreadCount(notifs.filter((n) => !n.read).length);
       },
-      () => {}
+      (err) => console.error('useNotifications error:', err)
     );
     return () => unsub();
   }, [uid, role]);
