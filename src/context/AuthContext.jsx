@@ -6,98 +6,142 @@ import {
   signOut,
   createUserWithEmailAndPassword,
 } from 'firebase/auth';
-import { doc, onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [userProfile, setUserProfile] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null); // Full Firestore doc
+  const [userRole, setUserRole] = useState(null);        // Shorthand role string
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    let profileUnsub = null;
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      try {
+        if (user) {
+          setCurrentUser(user);
 
-    const authUnsub = onAuthStateChanged(auth, (firebaseUser) => {
-      if (profileUnsub) {
-        profileUnsub();
-        profileUnsub = null;
-      }
+          try {
+            const userDocRef = doc(db, 'users', user.uid);
+            const userDocSnap = await getDoc(userDocRef);
 
-      if (firebaseUser) {
-        setUser(firebaseUser);
-        // Try to get profile, but don't hang if it fails or doesn't exist
-        profileUnsub = onSnapshot(
-          doc(db, 'users', firebaseUser.uid),
-          (snap) => {
-            if (snap.exists()) {
-              setUserProfile({ uid: firebaseUser.uid, ...snap.data() });
+            if (userDocSnap.exists()) {
+              const data = userDocSnap.data();
+              const role = data.role || 'citizen';
+              setUserRole(role);
+              setUserProfile({ uid: user.uid, ...data });
             } else {
-              // Default profile if Firestore entry is missing
-              setUserProfile({
-                uid: firebaseUser.uid,
-                role: 'citizen',
-                name: firebaseUser.displayName || 'User',
-                email: firebaseUser.email,
-                points: 0
-              });
+              console.warn('⚠️ No Firestore user doc found for uid:', user.uid);
+              setUserRole('citizen');
+              setUserProfile({ uid: user.uid, name: user.email, role: 'citizen' });
             }
-            setLoading(false);
-          },
-          (error) => {
-            console.error("Firestore sync error:", error);
-            // Fallback: still let them in as citizen if Auth succeeded
-            setUserProfile({
-              uid: firebaseUser.uid,
-              role: 'citizen',
-              name: firebaseUser.displayName || 'User',
-              email: firebaseUser.email,
-              points: 0
-            });
-            setLoading(false);
+          } catch (firestoreError) {
+            console.error('❌ Firestore role fetch error:', firestoreError);
+            setUserRole('citizen');
+            setUserProfile({ uid: user.uid, name: user.email, role: 'citizen' });
           }
-        );
-      } else {
-        setUser(null);
-        setUserProfile(null);
+        } else {
+          setCurrentUser(null);
+          setUserRole(null);
+          setUserProfile(null);
+        }
+      } finally {
         setLoading(false);
       }
     });
 
-    return () => {
-      authUnsub();
-      if (profileUnsub) profileUnsub();
-    };
+    return () => unsubscribe();
   }, []);
 
-  const login = (email, password) =>
-    signInWithEmailAndPassword(auth, email, password);
-
-  const register = async (email, password, name, role = 'citizen') => {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-    await setDoc(doc(db, 'users', cred.user.uid), {
-      name,
-      email,
-      role,
-      points: 0,
-      avatar_url: null,
-      ward: null,
-      createdAt: serverTimestamp(),
-    });
-    return cred;
+  const login = async (email, password) => {
+    try {
+      setError(null);
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      return result;
+    } catch (err) {
+      const msg = getAuthErrorMessage(err.code);
+      setError(msg);
+      throw err;
+    }
   };
 
-  const logout = () => signOut(auth);
+  const register = async (email, password, name, role) => {
+    try {
+      setError(null);
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      const uid = result.user.uid;
+
+      const userData = {
+        uid,
+        name: name.trim(),
+        email,
+        role,
+        points: 0,
+        avatar_url: null,
+        ward: null,
+        createdAt: serverTimestamp(),
+      };
+
+      await setDoc(doc(db, 'users', uid), userData);
+      console.log('✅ Firestore user doc created with role:', role);
+
+      return result;
+    } catch (err) {
+      const msg = getAuthErrorMessage(err.code);
+      setError(msg);
+      throw err;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      setError(null);
+      await signOut(auth);
+      setCurrentUser(null);
+      setUserRole(null);
+      setUserProfile(null);
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  const getAuthErrorMessage = (code) => {
+    const messages = {
+      'auth/invalid-credential': 'Invalid email or password.',
+      'auth/user-not-found': 'No account found with this email.',
+      'auth/wrong-password': 'Incorrect password.',
+      'auth/email-already-in-use': 'Email is already registered.',
+      'auth/weak-password': 'Password must be at least 6 characters.',
+      'auth/invalid-email': 'Invalid email address.',
+      'auth/operation-not-allowed': 'Authentication is disabled.',
+      'auth/too-many-requests': 'Too many attempts. Try again later.',
+    };
+    return messages[code] || 'Authentication failed. Please try again.';
+  };
+
+  const value = {
+    currentUser,
+    userProfile,     // Full Firestore profile: { uid, name, email, role, points, ... }
+    userRole,        // Shorthand: 'citizen' | 'worker' | 'officer'
+    loading,
+    error,
+    login,
+    register,
+    logout,
+  };
 
   return (
-    <AuthContext.Provider value={{ user, userProfile, loading, login, register, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 }
 
 export const useAuth = () => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
-  return ctx;
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  return context;
 };

@@ -9,19 +9,20 @@ import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const ROLE_BADGE = {
-  officer: { label: 'Officer', color: 'bg-[#2D6A4F]/20 text-[#2D6A4F]', icon: Shield },
-  citizen: { label: 'Citizen', color: 'bg-blue-50 text-blue-600', icon: BadgeCheck },
-  worker: { label: 'Worker', color: 'bg-amber-50 text-amber-600', icon: Shield },
+  citizen: { label: 'Citizen Portal', color: 'bg-[#2D6A4F]/10 text-[#2D6A4F]', icon: BadgeCheck },
+  worker: { label: 'Worker Portal', color: 'bg-[#1D3557]/10 text-[#1D3557]', icon: Shield },
+  officer: { label: 'Officer Panel', color: 'bg-[#6A040F]/10 text-[#6A040F]', icon: Shield },
 };
 
 export default function Topbar() {
   const { toggleSidebar } = useApp();
-  const { userProfile, logout } = useAuth();
+  // CRITICAL FIX: use userRole (string), not userProfile?.role (was undefined)
+  const { userProfile, userRole, logout } = useAuth();
   const [showProfile, setShowProfile] = useState(false);
   const navigate = useNavigate();
 
-  const role = userProfile?.role || 'citizen';
-  const badge = ROLE_BADGE[role];
+  const role = userRole || 'citizen';
+  const badge = ROLE_BADGE[role] || ROLE_BADGE.citizen;
   const firstName = userProfile?.name?.split(' ')[0] || 'User';
 
   return (
@@ -49,10 +50,15 @@ export default function Topbar() {
         )}
 
         {/* Role Badge */}
-        <div className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-2xl font-bold text-xs ${badge.color}`}>
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+          className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-2xl font-bold text-xs ${badge.color}`}
+        >
           <badge.icon size={12} />
-          <span>{badge.label}</span>
-        </div>
+          <span className="tracking-tight">{badge.label}</span>
+        </motion.div>
 
         {/* Notifications */}
         <button className="p-2.5 rounded-2xl bg-white border border-[#B7E4C7]/30 text-[#1B4332] shadow-soft relative">

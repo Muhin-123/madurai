@@ -1,260 +1,445 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
-import { useComplaints, useBins } from '../../hooks/useFirebaseData';
 import {
-  Loader2, X, Star, MapPin, ClipboardList,
-  CheckCircle2, Clock, AlertCircle, ChevronRight,
-  Trash2, Filter, Search, Calendar
+  ClipboardList, CheckCircle2, Clock, AlertCircle,
+  MapPin, ChevronRight, X, Loader2, ThumbsDown, Play,
+  CheckSquare, Trash2
 } from 'lucide-react';
-import { collection, addDoc, query, where, orderBy, limit, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
+import {
+  collection, query, where, onSnapshot, orderBy,
+  updateDoc, doc, serverTimestamp
+} from 'firebase/firestore';
 import { db } from '../../firebase';
 import toast from 'react-hot-toast';
 
-function StatCard({ label, value, icon: Icon, color, delay = 0 }) {
-  const [displayValue, setDisplayValue] = useState(0);
+// ─── Status config ─────────────────────────────────────────────────────────
 
+const STATUS_CONFIG = {
+  pending: {
+    label: 'Pending',
+    color: '#F48C06',
+    bg: 'bg-orange-50',
+    text: 'text-orange-600',
+    ring: 'ring-orange-200',
+    glow: 'shadow-orange-100',
+  },
+  accepted: {
+    label: 'Accepted',
+    color: '#457B9D',
+    bg: 'bg-blue-50',
+    text: 'text-blue-600',
+    ring: 'ring-blue-200',
+    glow: 'shadow-blue-100',
+  },
+  in_progress: {
+    label: 'In Progress',
+    color: '#2D6A4F',
+    bg: 'bg-emerald-50',
+    text: 'text-emerald-700',
+    ring: 'ring-emerald-200',
+    glow: 'shadow-emerald-100',
+  },
+  completed: {
+    label: 'Completed',
+    color: '#52B788',
+    bg: 'bg-green-50',
+    text: 'text-green-700',
+    ring: 'ring-green-200',
+    glow: 'shadow-green-100',
+  },
+};
+
+function StatusBadge({ status }) {
+  const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.pending;
+  return (
+    <motion.span
+      layout
+      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ring-1 ${cfg.bg} ${cfg.text} ${cfg.ring}`}
+    >
+      <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: cfg.color }} />
+      {cfg.label}
+    </motion.span>
+  );
+}
+
+function AnimatedCounter({ value }) {
+  const [display, setDisplay] = useState(0);
   useEffect(() => {
     let start = 0;
     const end = parseInt(value) || 0;
-    if (isNaN(end)) {
-      setDisplayValue(value);
-      return;
-    }
+    if (end === 0) { setDisplay(0); return; }
     const timer = setInterval(() => {
-      start += Math.ceil(end / 10);
-      if (start >= end) {
-        setDisplayValue(end);
-        clearInterval(timer);
-      } else {
-        setDisplayValue(start);
-      }
-    }, 60);
+      start += Math.ceil(end / 15);
+      if (start >= end) { setDisplay(end); clearInterval(timer); }
+      else setDisplay(start);
+    }, 50);
     return () => clearInterval(timer);
   }, [value]);
+  return <>{display}</>;
+}
 
+function StatCard({ label, value, icon: Icon, iconColor, delay = 0 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 15 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
-      whileHover={{ y: -5 }}
-      className="glass-card p-6 flex items-center gap-5 border-none shadow-soft"
+      whileHover={{ y: -4 }}
+      className="rounded-2xl bg-white border border-[#457B9D]/15 shadow-sm p-6 flex items-center gap-4"
     >
-      <div className="p-4 rounded-2xl bg-[#F8FAF5] border border-[#B7E4C7]/30">
-        <Icon size={22} style={{ color }} />
+      <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+        style={{ backgroundColor: `${iconColor}18` }}>
+        <Icon size={22} style={{ color: iconColor }} />
       </div>
       <div>
-        <h3 className="text-3xl font-black text-[#1B4332] leading-none mb-1">{displayValue}</h3>
-        <p className="text-[10px] font-black text-[#2D6A4F]/40 uppercase tracking-[0.2em]">{label}</p>
+        <p className="text-3xl font-black text-[#1D3557]"><AnimatedCounter value={value} /></p>
+        <p className="text-[10px] font-bold text-[#457B9D]/60 uppercase tracking-[0.18em]">{label}</p>
       </div>
     </motion.div>
   );
 }
 
-export default function WorkerDashboard() {
-  const { userProfile } = useAuth();
-  const { complaints, loading: cLoading } = useComplaints({ workerId: userProfile?.uid });
-  const { bins, loading: bLoading } = useBins();
-  const [filter, setFilter] = useState('In Progress');
-  const [selectedTask, setSelectedTask] = useState(null);
-  const [resolving, setResolving] = useState(false);
+function TaskCard({ task, onSelect, delay = 0 }) {
+  const cfg = STATUS_CONFIG[task.status] || STATUS_CONFIG.pending;
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 20 }}
+      transition={{ delay }}
+      whileHover={{ y: -3, scale: 1.01 }}
+      onClick={() => onSelect(task)}
+      className={`group flex items-center gap-4 p-5 rounded-2xl bg-white border border-[#1D3557]/8 hover:border-[#457B9D]/30 shadow-sm hover:shadow-md cursor-pointer transition-all ${cfg.glow}`}
+    >
+      <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+        style={{ backgroundColor: `${cfg.color}18` }}>
+        <MapPin size={18} style={{ color: cfg.color }} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="font-bold text-[#1D3557] text-sm truncate group-hover:text-[#457B9D] transition-colors">
+          {task.description || task.type || 'Complaint'}
+        </p>
+        <p className="text-[10px] font-semibold text-[#457B9D]/50 uppercase tracking-wide truncate">
+          {task.location || task.ward_id || 'No location'} · {task.createdAt?.toDate?.()?.toLocaleDateString() || 'Recently'}
+        </p>
+      </div>
+      <div className="flex items-center gap-3 flex-shrink-0">
+        <StatusBadge status={task.status} />
+        <ChevronRight size={16} className="text-[#457B9D]/30 group-hover:translate-x-1 transition-transform" />
+      </div>
+    </motion.div>
+  );
+}
 
-  const filteredTasks = complaints.filter(c => filter === 'All' ? true : c.status === filter);
-  const myPending = complaints.filter(c => c.status === 'In Progress').length;
-  const myResolved = complaints.filter(c => c.status === 'Resolved').length;
+function TaskModal({ task, onClose }) {
+  const [actionLoading, setActionLoading] = useState(null);
+  const { currentUser } = useAuth();
 
-  const handleResolve = async () => {
-    if (!selectedTask) return;
-    setResolving(true);
+  const updateStatus = async (newStatus, extraFields = {}) => {
+    setActionLoading(newStatus);
     try {
-      await updateDoc(doc(db, 'complaints', selectedTask.id), {
-        status: 'Resolved',
-        updated_at: serverTimestamp(),
-        resolved_by: userProfile.uid
+      await updateDoc(doc(db, 'complaints', task.id), {
+        status: newStatus,
+        updatedAt: serverTimestamp(),
+        ...extraFields,
       });
-      toast.success('Task marked as resolved!');
-      setSelectedTask(null);
+      toast.success(`Status updated to "${STATUS_CONFIG[newStatus]?.label || newStatus}"!`);
+      onClose();
     } catch (err) {
-      toast.error('Failed to update task.');
+      console.error('Status update error:', err);
+      toast.error('Failed to update task. Please try again.');
     } finally {
-      setResolving(false);
+      setActionLoading(null);
+    }
+  };
+
+  const handleDecline = async () => {
+    setActionLoading('decline');
+    try {
+      await updateDoc(doc(db, 'complaints', task.id), {
+        status: 'pending',
+        assignedWorkerId: null,
+        updatedAt: serverTimestamp(),
+      });
+      toast.success('Task declined and returned to pool.');
+      onClose();
+    } catch (err) {
+      toast.error('Failed to decline task.');
+    } finally {
+      setActionLoading(null);
     }
   };
 
   return (
-    <div className="space-y-10">
-      <header>
-        <h1 className="page-title text-4xl">Field Operations</h1>
-        <p className="page-subtitle text-lg">Assigned tasks and real-time maintenance monitoring.</p>
-      </header>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-black/60 backdrop-blur-md"
+      />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.92, y: 24 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.92, y: 24 }}
+        className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 overflow-hidden"
+      >
+        {/* Decorative top bar */}
+        <div className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl bg-gradient-to-r from-[#1D3557] to-[#457B9D]" />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard label="My Queue" value={myPending} icon={ClipboardList} color="#FFB703" delay={0.1} />
-        <StatCard label="Completed" value={myResolved} icon={CheckCircle2} color="#2D6A4F" delay={0.2} />
-        <StatCard label="Area Bins" value={bins.length} icon={Trash2} color="#2D6A4F" delay={0.3} />
-      </div>
+        <button
+          onClick={onClose}
+          className="absolute top-5 right-5 p-2 rounded-xl bg-gray-50 text-gray-400 hover:bg-rose-50 hover:text-rose-500 transition-all"
+        >
+          <X size={18} />
+        </button>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        <div className="xl:col-span-2 glass-card p-8 min-h-[600px]">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10">
-            <h2 className="text-2xl font-black text-[#1B4332]">Task Registry</h2>
-            <div className="flex gap-2 p-1 bg-[#F8FAF5] rounded-2xl border border-[#B7E4C7]/30">
-              {['In Progress', 'Resolved', 'All'].map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setFilter(m)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${filter === m ? 'bg-[#2D6A4F] text-white shadow-lg' : 'text-[#2D6A4F]/60 hover:text-[#2D6A4F]'}`}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
+        <div className="space-y-5 mt-2">
+          <StatusBadge status={task.status} />
+
+          <div>
+            <h3 className="text-2xl font-black text-[#1D3557] mb-1">
+              {task.description || task.type || 'Complaint'}
+            </h3>
+            <p className="text-sm text-[#457B9D]/70 flex items-center gap-2">
+              <MapPin size={13} />
+              {task.location || task.ward_id || 'Location not specified'}
+            </p>
           </div>
 
-          {cLoading ? (
-            <div className="space-y-4">
-              {[1, 2, 3, 4].map(i => <div key={i} className="h-20 shimmer rounded-2xl" />)}
-            </div>
-          ) : filteredTasks.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="w-16 h-16 rounded-full bg-[#F8FAF5] flex items-center justify-center mb-4">
-                <ClipboardList size={24} className="text-[#2D6A4F]/20" />
+          <div className="bg-[#F4F7F3] rounded-2xl p-4">
+            <p className="text-[10px] font-black text-[#1D3557]/40 uppercase tracking-[0.2em] mb-1">Details</p>
+            <p className="text-sm text-[#1D3557]/80 leading-relaxed">
+              {task.description || 'No additional details provided.'}
+            </p>
+          </div>
+
+          {/* Action buttons based on current status */}
+          <div className="space-y-3 pt-2">
+            {task.status === 'pending' && (
+              <div className="grid grid-cols-2 gap-3">
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => updateStatus('accepted')}
+                  disabled={!!actionLoading}
+                  className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-[#1D3557] text-white font-bold text-sm hover:bg-[#1D3557]/85 transition-all disabled:opacity-60"
+                >
+                  {actionLoading === 'accepted'
+                    ? <Loader2 size={16} className="animate-spin" />
+                    : <CheckCircle2 size={16} />}
+                  Accept
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={handleDecline}
+                  disabled={!!actionLoading}
+                  className="flex items-center justify-center gap-2 py-3 rounded-2xl bg-red-50 text-red-600 font-bold text-sm hover:bg-red-100 transition-all border border-red-100 disabled:opacity-60"
+                >
+                  {actionLoading === 'decline'
+                    ? <Loader2 size={16} className="animate-spin" />
+                    : <ThumbsDown size={16} />}
+                  Decline
+                </motion.button>
               </div>
-              <p className="text-[#2D6A4F]/40 font-bold uppercase tracking-widest text-xs">No tasks found</p>
+            )}
+
+            {task.status === 'accepted' && (
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => updateStatus('in_progress')}
+                disabled={!!actionLoading}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-[#457B9D] text-white font-bold text-sm hover:bg-[#457B9D]/85 transition-all disabled:opacity-60"
+              >
+                {actionLoading === 'in_progress'
+                  ? <Loader2 size={16} className="animate-spin" />
+                  : <Play size={16} />}
+                Mark In Progress
+              </motion.button>
+            )}
+
+            {task.status === 'in_progress' && (
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => updateStatus('completed')}
+                disabled={!!actionLoading}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-[#2D6A4F] text-white font-bold text-sm hover:bg-[#2D6A4F]/85 transition-all disabled:opacity-60"
+              >
+                {actionLoading === 'completed'
+                  ? <Loader2 size={16} className="animate-spin" />
+                  : <CheckSquare size={16} />}
+                Mark as Completed ✓
+              </motion.button>
+            )}
+
+            {task.status === 'completed' && (
+              <div className="text-center py-3 text-green-700 font-bold text-sm bg-green-50 rounded-2xl border border-green-100">
+                ✓ Task completed
+              </div>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+// ─── Main Worker Dashboard ─────────────────────────────────────────────────
+
+export default function WorkerDashboard() {
+  const { currentUser } = useAuth();
+  const [allTasks, setAllTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedTask, setSelectedTask] = useState(null);
+
+  useEffect(() => {
+    if (!currentUser?.uid) return;
+
+    const q = query(
+      collection(db, 'complaints'),
+      where('assignedWorkerId', '==', currentUser.uid),
+      orderBy('updatedAt', 'desc')
+    );
+
+    const unsub = onSnapshot(q, (snap) => {
+      setAllTasks(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      setLoading(false);
+    }, (err) => {
+      console.error('WorkerDashboard complaints error:', err);
+      setLoading(false);
+    });
+
+    return () => unsub();
+  }, [currentUser?.uid]);
+
+  const assigned = allTasks.filter(t => t.status === 'pending');
+  const active = allTasks.filter(t => t.status === 'accepted' || t.status === 'in_progress');
+  const completed = allTasks.filter(t => t.status === 'completed');
+
+  return (
+    <div className="space-y-8 max-w-5xl">
+      {/* Header */}
+      <motion.header
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-end justify-between"
+      >
+        <div>
+          <p className="text-xs font-bold text-[#457B9D]/60 uppercase tracking-[0.25em] mb-1">Field Operations</p>
+          <h1 className="text-4xl font-black text-[#1D3557] tracking-tight">My Tasks</h1>
+          <p className="text-[#457B9D]/70 font-medium mt-1">Manage your assigned civic complaints</p>
+        </div>
+        <div className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#1D3557] text-white font-bold text-sm shadow-lg shadow-[#1D3557]/20">
+          <ClipboardList size={15} />
+          {allTasks.length} Total Tasks
+        </div>
+      </motion.header>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <StatCard label="Assigned" value={assigned.length} icon={AlertCircle} iconColor="#F48C06" delay={0.05} />
+        <StatCard label="In Progress" value={active.length} icon={Clock} iconColor="#457B9D" delay={0.1} />
+        <StatCard label="Completed" value={completed.length} icon={CheckCircle2} iconColor="#2D6A4F" delay={0.15} />
+      </div>
+
+      {/* Section 1 – Assigned Tasks */}
+      <section className="bg-white rounded-3xl border border-[#1D3557]/8 shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between p-6 border-b border-[#1D3557]/6">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center">
+              <AlertCircle size={18} className="text-orange-500" />
+            </div>
+            <h2 className="text-lg font-black text-[#1D3557]">Assigned Tasks</h2>
+          </div>
+          <span className="text-xs font-bold text-orange-500 bg-orange-50 px-3 py-1 rounded-full">
+            {assigned.length} pending
+          </span>
+        </div>
+        <div className="p-6 space-y-3">
+          {loading ? (
+            [1, 2, 3].map(i => (
+              <div key={i} className="h-20 bg-gray-50 animate-pulse rounded-2xl" />
+            ))
+          ) : assigned.length === 0 ? (
+            <div className="text-center py-12 text-[#457B9D]/40">
+              <ClipboardList size={40} className="mx-auto mb-3 opacity-30" />
+              <p className="font-bold uppercase tracking-wider text-xs">No pending tasks</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {filteredTasks.map((t) => (
-                <div
-                  key={t.id}
-                  onClick={() => setSelectedTask(t)}
-                  className="group flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 rounded-[1.5rem] bg-white border border-transparent hover:border-[#B7E4C7]/40 hover:bg-[#F8FAF5] transition-all cursor-pointer shadow-sm hover:shadow-md"
-                >
-                  <div className="flex items-center gap-5 mb-4 sm:mb-0">
-                    <div className="w-12 h-12 rounded-2xl bg-[#B7E4C7]/20 flex items-center justify-center text-[#2D6A4F]">
-                      <MapPin size={20} />
-                    </div>
-                    <div>
-                      <h4 className="font-black text-[#1B4332] group-hover:text-[#2D6A4F] transition-colors">{t.type}</h4>
-                      <p className="text-[10px] font-bold text-[#2D6A4F]/50 uppercase tracking-widest">{t.ward_id} · {t.created_at?.toDate?.()?.toLocaleDateString() || 'Today'}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 self-end sm:self-center">
-                    <span className={`badge-green ${t.status === 'In Progress' ? 'bg-amber-50 text-amber-600' : ''}`}>{t.status}</span>
-                    <ChevronRight size={18} className="text-[#2D6A4F]/20 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
+            <AnimatePresence>
+              {assigned.map((t, i) => (
+                <TaskCard key={t.id} task={t} onSelect={setSelectedTask} delay={i * 0.05} />
               ))}
-            </div>
+            </AnimatePresence>
           )}
         </div>
+      </section>
 
-        <div className="space-y-8">
-          <div className="glass-card p-8 bg-[#1B4332] text-white">
-            <h2 className="text-xl font-black mb-6 flex items-center gap-2">
-              <Trash2 size={20} className="text-[#B7E4C7]" /> Area Sensors
-            </h2>
-            <div className="space-y-5">
-              {bins.slice(0, 4).map((b) => (
-                <div key={b.id} className="space-y-2">
-                  <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                    <span>{b.id}</span>
-                    <span className={b.fill > 80 ? 'text-rose-400' : 'text-[#B7E4C7]'}>{b.fill}%</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${b.fill}%` }}
-                      className={`h-full ${b.fill > 80 ? 'bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]' : 'bg-[#B7E4C7]'}`}
-                    />
-                  </div>
-                </div>
-              ))}
+      {/* Section 2 – Active Tasks */}
+      <section className="bg-white rounded-3xl border border-[#457B9D]/15 shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between p-6 border-b border-[#457B9D]/10">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
+              <Clock size={18} className="text-[#457B9D]" />
             </div>
-            <button className="w-full mt-8 py-4 rounded-2xl bg-[#2D6A4F] font-bold text-xs hover:shadow-xl transition-all">View Full Map</button>
+            <h2 className="text-lg font-black text-[#1D3557]">Active Tasks</h2>
           </div>
-
-          <div className="glass-card p-8">
-            <h3 className="text-sm font-black text-[#1B4332] mb-6 uppercase tracking-[0.2em]">Safety Guidelines</h3>
-            <ul className="space-y-4">
-              {[
-                { icon: ShieldCheck, text: 'Wear protective gear at all times.' },
-                { icon: Calendar, text: 'Upload photos after completion.' },
-                { icon: Star, text: 'Maintain 4.5+ rating for bonus.' }
-              ].map((item, i) => (
-                <li key={i} className="flex gap-4">
-                  <div className="w-6 h-6 rounded-lg bg-[#F8FAF5] flex items-center justify-center flex-shrink-0">
-                    <item.icon size={12} className="text-[#2D6A4F]" />
-                  </div>
-                  <p className="text-xs font-semibold text-[#1B4332]/70 leading-relaxed">{item.text}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <span className="text-xs font-bold text-[#457B9D] bg-blue-50 px-3 py-1 rounded-full">
+            {active.length} in progress
+          </span>
         </div>
-      </div>
+        <div className="p-6 space-y-3">
+          {active.length === 0 ? (
+            <div className="text-center py-10 text-[#457B9D]/40">
+              <Clock size={36} className="mx-auto mb-3 opacity-30" />
+              <p className="font-bold uppercase tracking-wider text-xs">No active tasks</p>
+            </div>
+          ) : (
+            <AnimatePresence>
+              {active.map((t, i) => (
+                <TaskCard key={t.id} task={t} onSelect={setSelectedTask} delay={i * 0.05} />
+              ))}
+            </AnimatePresence>
+          )}
+        </div>
+      </section>
 
+      {/* Section 3 – Completed Tasks */}
+      <section className="bg-white rounded-3xl border border-green-100 shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between p-6 border-b border-green-50">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-green-50 flex items-center justify-center">
+              <CheckCircle2 size={18} className="text-green-600" />
+            </div>
+            <h2 className="text-lg font-black text-[#1D3557]">Completed Tasks</h2>
+          </div>
+          <span className="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full">
+            {completed.length} done
+          </span>
+        </div>
+        <div className="p-6 space-y-3">
+          {completed.length === 0 ? (
+            <div className="text-center py-10 text-gray-300">
+              <CheckCircle2 size={36} className="mx-auto mb-3 opacity-30" />
+              <p className="font-bold uppercase tracking-wider text-xs">No completed tasks yet</p>
+            </div>
+          ) : (
+            <AnimatePresence>
+              {completed.slice(0, 5).map((t, i) => (
+                <TaskCard key={t.id} task={t} onSelect={setSelectedTask} delay={i * 0.03} />
+              ))}
+            </AnimatePresence>
+          )}
+        </div>
+      </section>
+
+      {/* Task modal */}
       <AnimatePresence>
         {selectedTask && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedTask(null)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-md"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg glass-card bg-white p-10 overflow-hidden shadow-2xl"
-            >
-              <button
-                onClick={() => setSelectedTask(null)}
-                className="absolute top-6 right-6 p-2 rounded-xl bg-[#F8FAF5] text-[#1B4332] hover:bg-rose-50 hover:text-rose-500 transition-all"
-              >
-                <X size={20} />
-              </button>
-
-              <div className="flex flex-col gap-6">
-                <div>
-                  <span className={`badge-green mb-4 ${selectedTask.status === 'In Progress' ? 'bg-amber-50 text-amber-600' : ''}`}>
-                    {selectedTask.status}
-                  </span>
-                  <h3 className="text-3xl font-black text-[#1B4332] mb-2">{selectedTask.type}</h3>
-                  <p className="text-sm font-medium text-[#2D6A4F]/60 flex items-center gap-2">
-                    <MapPin size={14} /> {selectedTask.location} · {selectedTask.ward_id}
-                  </p>
-                </div>
-
-                <div className="p-6 rounded-2xl bg-[#F8FAF5] border border-[#B7E4C7]/20">
-                  <h4 className="text-[10px] font-black text-[#2D6A4F]/40 uppercase tracking-[0.2em] mb-2">Description</h4>
-                  <p className="text-sm font-semibold text-[#1B4332]/80 leading-relaxed italic">
-                    "{selectedTask.description || 'No description provided.'}"
-                  </p>
-                </div>
-
-                {selectedTask.status === 'In Progress' && (
-                  <div className="grid grid-cols-2 gap-4 mt-4">
-                    <button
-                      onClick={handleResolve}
-                      disabled={resolving}
-                      className="btn-primary col-span-2"
-                    >
-                      {resolving ? <Loader2 className="animate-spin" /> : <CheckCircle2 size={20} />}
-                      Mark as Resolved
-                    </button>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          </div>
+          <TaskModal task={selectedTask} onClose={() => setSelectedTask(null)} />
         )}
       </AnimatePresence>
     </div>
   );
 }
-// Helper for missing imports
-const ShieldCheck = (props) => <div {...props}><div className="w-full h-full border-2 border-current rounded-full" /></div>;
